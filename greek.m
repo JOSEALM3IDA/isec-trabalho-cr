@@ -8,7 +8,6 @@ close all;
 
 IMG_SCALE = 0.25;
 
-% TODO: Carregar todas as imagens
 letrasBW = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, 10);
 
 for i=1:10
@@ -43,21 +42,20 @@ letrasTarget = [eye(10)];
 
 net = feedforwardnet([10]);
 
-net.trainFcn = 'traincgb';
-net.layers{1}.transferFcn = 'logsig';
-net.layers{2}.transferFcn = 'tansig';
-%net.layers{2}.transferFcn = 'purelin';
+net.trainFcn = 'trainscg';
+net.layers{1}.transferFcn = 'tansig';
+net.layers{2}.transferFcn = 'purelin';
 net.divideFcn = 'dividerand';
-net.divideParam.trainRatio = 0.95;
-net.divideParam.valRatio = 0.025;
-net.divideParam.testRatio = 0.025;
+net.divideParam.trainRatio = 1;
+net.divideParam.valRatio = 0;
+net.divideParam.testRatio = 0;
 
 view(net)
 
 % TREINAR
 [net,tr] = train(net, letrasBW, letrasTarget);
 %view(net);
-%disp(tr)
+disp(tr)
 
 out = sim(net, letrasBW)
 r = 0;
@@ -69,21 +67,24 @@ for i=1:size(out,2)               % Para cada classificacao
     end
 end
 
+%plotconfusion(letrasTarget, out)
+%plotperf(tr)
+
 accuracy = r/size(out,2);
 fprintf('Precisao total de treino %f\n', accuracy)
 
 % SIMULAR
-imgFiles = dir('Pasta2\\letter_bnw_1.jpg');
-letrasSim = zeros(3024 * 3024 * 0.125 * 0.125, length(imgFiles));
-for i=1:length(imgFiles)
-    img = imread(sprintf('Pasta2\\%s', imgFiles(i).name));
-    img = imresize(img, 0.125);
-    binarizedImg = imbinarize(img);
-    letrasSim(:, 1) = reshape(binarizedImg, 1, []);
-end
+%imgFiles = dir('Pasta2\\letter_bnw_1.jpg');
+%letrasSim = zeros(3024 * 3024 * 0.125 * 0.125, length(imgFiles));
+%for i=1:length(imgFiles)
+%    img = imread(sprintf('Pasta2\\%s', imgFiles(i).name));
+%    img = imresize(img, 0.125);
+%    binarizedImg = imbinarize(img);
+%    letrasSim(:, 1) = reshape(binarizedImg, 1, []);
+%end
 
-out = sim(net, letrasSim)
-[a b] = max(out(:, i))
+%out = sim(net, letrasSim)
+%[a b] = max(out(:, i))
 
 % 
 % 
