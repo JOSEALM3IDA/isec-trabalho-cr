@@ -1,6 +1,4 @@
-function greek()
-%IRIS_DATASET Summary of this function goes here
-%   Detailed explanation goes here
+function greek_b()
 
 clc;
 clear all;
@@ -8,16 +6,19 @@ close all;
 
 IMG_SCALE = 0.25;
 
-letrasBW = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, 10);
-
-for i=1:10
-    img = imread(sprintf('Pasta1\\%d.jpg', i));
-    img = imresize(img, IMG_SCALE);
-    binarizedImg = imbinarize(img);
-    letrasBW(:, i) = reshape(binarizedImg, 1, []);
+imgFiles = dir('Pasta2\\letter_bnw_*.jpg');
+letrasBW = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, length(imgFiles));
+%letrasTarget = zeros(length(imgFiles), length(imgFiles));
+letrasTarget = [];
+for i=1:length(imgFiles)/10
+    for j=1:10
+        img = imread(sprintf('Pasta2\\%s', imgFiles(((j - 1) * 10) + i).name));
+        img = imresize(img, IMG_SCALE);
+        binarizedImg = imbinarize(img);
+        letrasBW(:, i) = reshape(binarizedImg, 1, []);
+    end
+    letrasTarget = [letrasTarget eye(10)];
 end
-
-letrasTarget = [eye(10)];
 
 % CRIAR E CONFIGURAR A REDE NEURONAL
 % INDICAR: N? camadas escondidas e nos por camada escondida
@@ -40,21 +41,25 @@ letrasTarget = [eye(10)];
 % grid on
 % rotate3d on
 
-net = feedforwardnet([10]);
+net = feedforwardnet([5 5]);
 
-net.trainFcn = 'trainscg';
+net.trainFcn = 'trainrp';
 net.layers{1}.transferFcn = 'tansig';
-net.layers{2}.transferFcn = 'purelin';
+net.layers{2}.transferFcn = 'tansig';
+net.layers{3}.transferFcn = 'purelin';
 net.divideFcn = 'dividerand';
-net.divideParam.trainRatio = 1;
-net.divideParam.valRatio = 0;
-net.divideParam.testRatio = 0;
+net.divideParam.trainRatio = 0.7;
+net.divideParam.valRatio = 0.15;
+net.divideParam.testRatio = 0.15;
 
-view(net)
+%view(net)
 
 % TREINAR
 [net,tr] = train(net, letrasBW, letrasTarget);
 %view(net);
+y = net(letrasBW);
+e = letrasTarget - y;
+ploterrhist(e)
 disp(tr)
 
 out = sim(net, letrasBW)
@@ -67,7 +72,7 @@ for i=1:size(out,2)               % Para cada classificacao
     end
 end
 
-%plotconfusion(letrasTarget, out)
+plotconfusion(letrasTarget, out)
 %plotperf(tr)
 
 accuracy = r/size(out,2);
