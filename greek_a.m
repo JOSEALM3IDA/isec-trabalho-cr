@@ -15,7 +15,8 @@ for i=1:10
     letrasBW(:, i) = reshape(binarizedImg, 1, []);
 end
 
-letrasTarget = [eye(10)];
+disp(size(letrasBW))
+letrasTarget = [eye(10)]
 
 
 net = feedforwardnet([10]);
