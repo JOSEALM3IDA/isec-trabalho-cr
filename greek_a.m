@@ -1,6 +1,5 @@
 function greek_a()
 
-
 clc;
 clear all;
 close all;
@@ -22,7 +21,7 @@ letrasTarget = [eye(10)];
 net = feedforwardnet([10]);
 
 net.trainFcn = 'trainrp';
-net.layers{1}.transferFcn = 'purelin';
+net.layers{1}.transferFcn = 'tansig';
 net.layers{2}.transferFcn = 'purelin';
 net.divideFcn = 'dividerand';
 net.divideParam.trainRatio = 1;

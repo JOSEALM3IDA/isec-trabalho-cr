@@ -6,19 +6,29 @@ close all;
 
 IMG_SCALE = 0.25;
 
-imgFiles = dir('Pasta2\\letter_bnw_*.jpg');
-letrasBW = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, length(imgFiles));
+folderImg = dir('Pasta2\\letter_bnw_*.jpg');
+imgFiles = natsort({folderImg.name});
+
+%for i=1:100
+%    disp(imgFiles(i))
+%end
+letrasBW = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, length(imgFiles)/10);
 %letrasTarget = zeros(length(imgFiles), length(imgFiles));
 letrasTarget = [];
-for i=1:length(imgFiles)/10
+for i=1:length(imgFiles)/100
     for j=1:10
-        img = imread(sprintf('Pasta2\\%s', imgFiles(((j - 1) * 10) + i).name));
+        img = imread(sprintf('Pasta2\\%s', char(imgFiles(((j - 1) * 10) + i))));
         img = imresize(img, IMG_SCALE);
         binarizedImg = imbinarize(img);
+        disp(char(imgFiles(((j - 1) * 10) + i)));
+        imshow(binarizedImg);
         letrasBW(:, i) = reshape(binarizedImg, 1, []);
     end
     letrasTarget = [letrasTarget eye(10)];
 end
+
+disp(size(letrasBW))
+disp(letrasTarget)
 
 % CRIAR E CONFIGURAR A REDE NEURONAL
 % INDICAR: N? camadas escondidas e nos por camada escondida
@@ -41,16 +51,15 @@ end
 % grid on
 % rotate3d on
 
-net = feedforwardnet([5 5]);
+net = feedforwardnet([10]);
 
 net.trainFcn = 'trainrp';
 net.layers{1}.transferFcn = 'tansig';
-net.layers{2}.transferFcn = 'tansig';
-net.layers{3}.transferFcn = 'purelin';
+net.layers{2}.transferFcn = 'purelin';
 net.divideFcn = 'dividerand';
-net.divideParam.trainRatio = 0.7;
-net.divideParam.valRatio = 0.15;
-net.divideParam.testRatio = 0.15;
+net.divideParam.trainRatio = 1;
+net.divideParam.valRatio = 0;
+net.divideParam.testRatio = 0;
 
 %view(net)
 
@@ -59,7 +68,7 @@ net.divideParam.testRatio = 0.15;
 %view(net);
 y = net(letrasBW);
 e = letrasTarget - y;
-ploterrhist(e)
+%ploterrhist(e)
 disp(tr)
 
 out = sim(net, letrasBW)
