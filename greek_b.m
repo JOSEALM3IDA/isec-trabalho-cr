@@ -45,22 +45,27 @@ end
 % grid on
 % rotate3d on
 
-net = feedforwardnet([10]);
+net = feedforwardnet([20 20 20 20 20 20]);
 
-net.trainFcn = 'trainrp';
+net.trainFcn = 'trainscg';
 net.layers{1}.transferFcn = 'tansig';
-net.layers{2}.transferFcn = 'purelin';
+net.layers{2}.transferFcn = 'logsig';
+net.layers{3}.transferFcn = 'purelin';
+net.layers{4}.transferFcn = 'tansig';
+net.layers{5}.transferFcn = 'tansig';
+net.layers{6}.transferFcn = 'logsig';
+net.layers{7}.transferFcn = 'purelin';
 net.divideFcn = 'dividerand';
-net.divideParam.trainRatio = 0.7;
-net.divideParam.valRatio = 0.15;
-net.divideParam.testRatio = 0.15;
+net.divideParam.trainRatio = 0.9;
+net.divideParam.valRatio = 0.05;
+net.divideParam.testRatio = 0.05;
 
 %view(net)
 
 % TREINAR
 [net,tr] = train(net, letrasBW, letrasTarget);
 
-disp(tr)
+% disp(tr)
 
 out = sim(net, letrasBW)
 r = 0;
@@ -77,6 +82,8 @@ plotconfusion(letrasTarget, out)
 
 accuracy = r/size(out,2);
 fprintf('Precisao total de treino %f\n', accuracy)
+
+save net;
 
 % SIMULAR
 %imgFiles = dir('Pasta2\\letter_bnw_1.jpg');

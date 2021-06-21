@@ -18,7 +18,6 @@ end
 disp(size(letrasBW))
 letrasTarget = [eye(10)]
 
-
 net = feedforwardnet([10]);
 
 net.trainFcn = 'trainrp';
