@@ -135,6 +135,21 @@ letrasTarget = [letrasTarget1 letrasTarget2 letrasTarget3];
 
 [net, ~] = train(net, letrasBW, letrasTarget);
 
+out = sim(net, letrasBW);
+
+r = 0;
+for i = 1: size(out,2)                  % Para cada classificação:
+    [~, b] = max(out(:,i));             % b guarda a linha onde encontrou valor mais alto da saída obtida
+    [~, d] = max(letrasTarget(:,i));    % d guarda a linha onde encontrou valor mais alto da saída desejada
+    if b == d                           % Se estão na mesma linha, a classificação foi correta (incrementa 1)
+      r = r+1;
+    end
+end
+
+
+accuracy = r/size(out,2);
+fprintf('Precisao total de treino %f\n', accuracy)
+
 %% Testar rede com pasta 1
 
 letrasBW = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, 10);
@@ -242,4 +257,3 @@ plotconfusion(letrasTarget1, out1, 'Pasta 1', letrasTarget2, out2, 'Pasta 2', le
 set(findall(gcf, '-property', 'FontSize'), 'FontSize', 6);
 
 end
-
