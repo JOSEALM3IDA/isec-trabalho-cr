@@ -8,7 +8,7 @@ IMG_SCALE = 0.25;
 
 %% Escolha de rede
 
-redeTreino = 51;    % Alterar o valor para a rede desejada
+redeTreino = 46;    % Alterar o valor para a rede desejada
 
 switch redeTreino
     case 46
@@ -255,5 +255,9 @@ plotconfusion(letrasTarget1, out1, 'Pasta 1', letrasTarget2, out2, 'Pasta 2', le
 
 % Mudar tamanho da letra
 set(findall(gcf, '-property', 'FontSize'), 'FontSize', 6);
+
+%% Guardar a rede em ficheiro
+
+save('netc3.mat', 'net');
 
 end
