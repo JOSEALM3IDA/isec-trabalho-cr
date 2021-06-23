@@ -24,6 +24,8 @@ for i=1:length(imgFiles)/10
     letrasTarget = [letrasTarget eye(10)];
 end
 
+letrasTarget = flip(letrasTarget, 1);   % Todos os targets (excluindo da pasta 2) terão de ser flipped
+
 %% Escolha de rede
 
 redeTreino = 46;    % Alterar o valor para a rede desejada
@@ -85,59 +87,6 @@ switch redeTreino
         disp('ERROR 404: NEURAL NETWORK NOT FOUND');
         return;
 end
-
-
-%% Rede 46
-
-net = feedforwardnet([20 20 20 20 20 20]);
-
-net.trainFcn = 'trainscg';
-net.layers{1}.transferFcn = 'tansig';
-net.layers{2}.transferFcn = 'tansig';
-net.layers{3}.transferFcn = 'tansig';
-net.layers{4}.transferFcn = 'tansig';
-net.layers{5}.transferFcn = 'tansig';
-net.layers{6}.transferFcn = 'tansig';
-net.layers{7}.transferFcn = 'purelin';
-net.divideFcn = 'dividerand';
-net.divideParam.trainRatio = 0.5;
-net.divideParam.valRatio = 0;
-net.divideParam.testRatio = 0.5;
-
-%% Rede 50
-
-net = feedforwardnet([20 20 20 20 20 20]);
-
-net.trainFcn = 'trainscg';
-net.layers{1}.transferFcn = 'tansig';
-net.layers{2}.transferFcn = 'logsig';
-net.layers{3}.transferFcn = 'purelin';
-net.layers{4}.transferFcn = 'tansig';
-net.layers{5}.transferFcn = 'tansig';
-net.layers{6}.transferFcn = 'logsig';
-net.layers{7}.transferFcn = 'purelin';
-net.divideFcn = 'dividerand';
-net.divideParam.trainRatio = 1;
-net.divideParam.valRatio = 0;
-net.divideParam.testRatio = 0;
-
-%% Rede 51
-
-net = feedforwardnet([20 20 20 20 20 20]);
-
-net.trainFcn = 'trainscg';
-net.layers{1}.transferFcn = 'tansig';
-net.layers{2}.transferFcn = 'logsig';
-net.layers{3}.transferFcn = 'purelin';
-net.layers{4}.transferFcn = 'tansig';
-net.layers{5}.transferFcn = 'tansig';
-net.layers{6}.transferFcn = 'logsig';
-net.layers{7}.transferFcn = 'purelin';
-net.divideFcn = 'dividerand';
-net.divideParam.trainRatio = 0.9;
-net.divideParam.valRatio = 0.05;
-net.divideParam.testRatio = 0.05;
-
 %% TREINAR REDE
 
 %view(net)
@@ -266,7 +215,7 @@ fprintf('Precisão total de simulação para a pasta 3: %f\n', accuracy);
 plotconfusion(letrasTarget1, out1, 'Pasta 1', letrasTarget2, out2, 'Pasta 2', letrasTarget3, out3, 'Pasta 3');
 
 % Mudar tamanho da letra
-set(findobj(gca, 'type', 'text'), 'fontsize', 6) 
+set(findobj(gca, 'type', 'text'), 'fontsize', 6)
 
 end
 
