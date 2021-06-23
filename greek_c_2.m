@@ -28,7 +28,7 @@ letrasTarget = flip(letrasTarget, 1);   % Todos os targets (excluindo da pasta 2
 
 %% Escolha de rede
 
-redeTreino = 46;    % Alterar o valor para a rede desejada
+redeTreino = 51;    % Alterar o valor para a rede desejada
 
 switch redeTreino
     case 46
@@ -215,7 +215,7 @@ fprintf('Precisão total de simulação para a pasta 3: %f\n', accuracy);
 plotconfusion(letrasTarget1, out1, 'Pasta 1', letrasTarget2, out2, 'Pasta 2', letrasTarget3, out3, 'Pasta 3');
 
 % Mudar tamanho da letra
-set(findobj(gca, 'type', 'text'), 'fontsize', 6)
+set(findall(gcf, '-property', 'FontSize'), 'FontSize', 6);
 
 end
 
