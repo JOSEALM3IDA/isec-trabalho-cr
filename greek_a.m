@@ -16,7 +16,7 @@ for i=1:10
 end
 
 disp(size(letrasBW))
-letrasTarget = [eye(10)]
+letrasTarget = [eye(10)];
 
 net = feedforwardnet([10]);
 

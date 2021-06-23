@@ -1,4 +1,4 @@
-function greek_c()
+function greek_c_1()
 
 clc;
 clear all;
