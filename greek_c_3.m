@@ -8,7 +8,7 @@ IMG_SCALE = 0.25;
 
 %% Escolha de rede
 
-redeTreino = 46;    % Alterar o valor para a rede desejada
+redeTreino = 51;    % Alterar o valor para a rede desejada
 
 switch redeTreino
     case 46
