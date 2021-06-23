@@ -1,30 +1,10 @@
-function greek_c_2()
+function greek_c_3()
 
 clc;
 clear all;
 close all;
 
 IMG_SCALE = 0.25;
-
-folderImg = dir('Pasta3\\letter_bnw_test_*.jpg');
-imgFiles = natsort({folderImg.name});
-
-letrasBW = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, length(imgFiles));
-letrasTarget = [];
-letrasBWCol = 1;
-for i=1:length(imgFiles)/10  
-    for j=1:10
-        img = imread(sprintf('Pasta3\\%s', char(imgFiles(((j - 1) * 4) + i))));
-        img = imresize(img, IMG_SCALE);
-        binarizedImg = imbinarize(img);
-        letrasBW(:, letrasBWCol) = reshape(binarizedImg, 1, []);
-        letrasBWCol = letrasBWCol + 1;
-    end
-    
-    letrasTarget = [letrasTarget eye(10)];
-end
-
-letrasTarget = flip(letrasTarget, 1);   % Todos os targets (excluindo da pasta 2) terão de ser flipped
 
 %% Escolha de rede
 
@@ -87,29 +67,71 @@ switch redeTreino
         disp('ERROR 404: NEURAL NETWORK NOT FOUND');
         return;
 end
-%% TREINAR REDE
 
-%view(net)
+%% Preparar pasta 1 para treino
 
-% TREINAR
-[net, ~] = train(net, letrasBW, letrasTarget);
+letrasBW1 = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, 10);
 
-out = sim(net, letrasBW);
-
-r = 0;
-for i = 1: size(out,2)                  % Para cada classificação:
-    [~, b] = max(out(:,i));             % b guarda a linha onde encontrou valor mais alto da saída obtida
-    [~, d] = max(letrasTarget(:,i));    % d guarda a linha onde encontrou valor mais alto da saída desejada
-    if b == d                           % Se estão na mesma linha, a classificação foi correta (incrementa 1)
-      r = r+1;
-    end
+for i=1:10
+    img = imread(sprintf('Pasta1\\%d.jpg', i));
+    img = imresize(img, IMG_SCALE);
+    binarizedImg = imbinarize(img);
+    letrasBW1(:, i) = reshape(binarizedImg, 1, []);
 end
 
-plotconfusion(letrasTarget, out)
-%plotperf(tr)
+letrasTarget1 = [eye(10)];
+letrasTarget1 = flip(letrasTarget1, 1);   % Todos os targets (excluindo da pasta 2) terão de ser flipped
 
-accuracy = r/size(out,2);
-fprintf('Precisao total de treino %f\n', accuracy)
+%% Preparar pasta 2 para treino
+
+folderImg = dir('Pasta2\\letter_bnw_*.jpg');
+imgFiles = natsort({folderImg.name});
+
+letrasBW2 = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, length(imgFiles));
+letrasTarget2 = [];
+letrasBWCol = 1;
+
+for i = 1: length(imgFiles) / 10   
+    for j = 1: 10
+        img = imread(sprintf('Pasta2\\%s', char(imgFiles(((j - 1) * 10) + i))));
+        img = imresize(img, IMG_SCALE);
+        binarizedImg = imbinarize(img);
+        letrasBW2(:, letrasBWCol) = reshape(binarizedImg, 1, []);
+        letrasBWCol = letrasBWCol + 1;
+    end
+    
+    letrasTarget2 = [letrasTarget2 eye(10)];
+end
+
+%% Preparar pasta 3 para treino
+
+folderImg = dir('Pasta3\\letter_bnw_test_*.jpg');
+imgFiles = natsort({folderImg.name});
+
+letrasBW3 = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, length(imgFiles));
+letrasTarget3 = [];
+letrasBWCol = 1;
+
+for i = 1: length(imgFiles) / 10  
+    for j=1:10
+        img = imread(sprintf('Pasta3\\%s', char(imgFiles(((j - 1) * 4) + i))));
+        img = imresize(img, IMG_SCALE);
+        binarizedImg = imbinarize(img);
+        letrasBW3(:, letrasBWCol) = reshape(binarizedImg, 1, []);
+        letrasBWCol = letrasBWCol + 1;
+    end
+    
+    letrasTarget3 = [letrasTarget3 eye(10)];
+end
+
+letrasTarget3 = flip(letrasTarget3, 1);     % Todos os targets (excluindo da pasta 2) terão de ser flipped
+
+%% TREINAR REDE
+
+% Treinar rede com as pastas previamente preparadas
+[net, ~] = train(net, letrasBW1, letrasTarget1);
+[net, ~] = train(net, letrasBW2, letrasTarget2);
+[net, ~] = train(net, letrasBW3, letrasTarget3);
 
 %% Testar rede com pasta 1
 
