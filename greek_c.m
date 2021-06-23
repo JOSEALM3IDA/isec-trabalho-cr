@@ -12,23 +12,22 @@ imgFiles = natsort({folderImg.name});
 letrasBW = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, length(imgFiles));
 letrasTarget = [];
 letrasBWCol = 1;
-for i=1:length(imgFiles)/10   
-    for j=1:4
-        img = imread(sprintf('Pasta3\\%s', char(imgFiles(((j - 1) * 10) + i))));
+for i=1:length(imgFiles)/10  
+    for j=1:10
+        img = imread(sprintf('Pasta3\\%s', char(imgFiles(((j - 1) * 4) + i))));
         img = imresize(img, IMG_SCALE);
         binarizedImg = imbinarize(img);
         letrasBW(:, letrasBWCol) = reshape(binarizedImg, 1, []);
         letrasBWCol = letrasBWCol + 1;
     end
     
-    letrasTarget = [letrasTarget eye(4)];
+    letrasTarget = [letrasTarget eye(10)];
 end
 
-
+letrasTarget = flip(letrasTarget, 1);
 
 % CARREGAR NET
-net = load('net.mat', 'net');
-disp(net);
+net = load('net51.mat', 'net').net;
 % view(net)
 
 out = sim(net, letrasBW)
