@@ -83,7 +83,7 @@ plotconfusion(letrasTarget, out)
 accuracy = r/size(out,2);
 fprintf('Precisao total de treino %f\n', accuracy)
 
-save net;
+save('net.mat', 'net');
 
 % SIMULAR
 %imgFiles = dir('Pasta2\\letter_bnw_1.jpg');

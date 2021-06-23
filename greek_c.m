@@ -1,4 +1,4 @@
-function greek_b()
+function greek_c()
 
 clc;
 clear all;
@@ -13,7 +13,7 @@ letrasBW = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, length(imgFiles));
 letrasTarget = [];
 letrasBWCol = 1;
 for i=1:length(imgFiles)/10   
-    for j=1:10
+    for j=1:4
         img = imread(sprintf('Pasta3\\%s', char(imgFiles(((j - 1) * 10) + i))));
         img = imresize(img, IMG_SCALE);
         binarizedImg = imbinarize(img);
@@ -21,14 +21,15 @@ for i=1:length(imgFiles)/10
         letrasBWCol = letrasBWCol + 1;
     end
     
-    letrasTarget = [letrasTarget eye(10)];
+    letrasTarget = [letrasTarget eye(4)];
 end
 
 
 
 % CARREGAR NET
-net = load('net46');
-view(net)
+net = load('net.mat', 'net');
+disp(net);
+% view(net)
 
 out = sim(net, letrasBW)
 r = 0;
