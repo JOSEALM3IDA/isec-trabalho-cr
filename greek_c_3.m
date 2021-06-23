@@ -8,7 +8,7 @@ IMG_SCALE = 0.25;
 
 %% Escolha de rede
 
-redeTreino = 51;    % Alterar o valor para a rede desejada
+redeTreino = 46;    % Alterar o valor para a rede desejada
 
 switch redeTreino
     case 46
@@ -126,12 +126,14 @@ end
 
 letrasTarget3 = flip(letrasTarget3, 1);     % Todos os targets (excluindo da pasta 2) terão de ser flipped
 
+%% Juntar os inputs e imagens
+
+letrasBW = [letrasBW1 letrasBW2 letrasBW3];
+letrasTarget = [letrasTarget1 letrasTarget2 letrasTarget3];
+
 %% TREINAR REDE
 
-% Treinar rede com as pastas previamente preparadas
-[net, ~] = train(net, letrasBW1, letrasTarget1);
-[net, ~] = train(net, letrasBW2, letrasTarget2);
-[net, ~] = train(net, letrasBW3, letrasTarget3);
+[net, ~] = train(net, letrasBW, letrasTarget);
 
 %% Testar rede com pasta 1
 
