@@ -11,10 +11,8 @@ IMG_SCALE = 1/108; % 28x28
 redeTreino = 51;    % Alterar o valor para a rede desejada
 letra = 1;       % Alterar o valor para o caracter desejado
 
-netFileStr = strcat('net', int2str(redeTreino), 'c3.mat')
+netFileStr = strcat('net', int2str(redeTreino), 'c3.mat');
 net = load(netFileStr, 'net').net;
-
-disp(net)
 
 %% Testar rede com caracter dado
 
@@ -28,16 +26,20 @@ letraTarget = identity(:, rem(letra, 10));
 
 out = sim(net, letraBW);
 
-r = 0;
-for i = 1: size(out, 2)                % Para cada classificação:
-    [~, b] = max(out(:, i));           % b guarda a linha onde encontrou valor mais alto da saída obtida
-    [~, d] = max(letraTarget(:, i));  % d guarda a linha onde encontrou valor mais alto da saída desejada
-    if b == d                           % Se estão na mesma linha, a classificação foi correta (incrementa 1)
-      r = r+1;
-    end
-end
+[~, b] = max(out(:, 1));      
+[~, d] = max(letraTarget(:, 1));
 
-accuracy = r/size(out, 2);
-fprintf('Precisão total de simulação para a pasta 1: %f\n', accuracy);
+%% Analisar resultado
+
+possibleCharacters = ['α' 'β' 'γ' 'ε' 'η' 'θ' 'π' 'φ' 'ψ' 'ω'];
+
+fprintf('Caracter correto: %c\n', possibleCharacters(d, 1));
+fprintf('Caracter escolhido pela rede: %c\n', possibleCharacters(b, 1));
+
+if (b == d)
+    disp('Correto!');
+else
+    disp('Errado!');
+end
 
 end
