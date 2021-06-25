@@ -4,9 +4,9 @@ clc;
 clear all;
 close all;
 
-IMG_SCALE = 0.25;
+IMG_SCALE = 1/108;
 
-folderImg = dir('Pasta3\\letter_bnw_test_*.jpg');
+folderImg = dir('..\\Pasta3\\letter_bnw_test_*.jpg');
 imgFiles = natsort({folderImg.name});
 
 letrasBW = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, length(imgFiles));
@@ -14,7 +14,7 @@ letrasTarget = [];
 letrasBWCol = 1;
 for i=1:length(imgFiles)/10  
     for j=1:10
-        img = imread(sprintf('Pasta3\\%s', char(imgFiles(((j - 1) * 4) + i))));
+        img = imread(sprintf('..\\Pasta3\\%s', char(imgFiles(((j - 1) * 4) + i))));
         img = imresize(img, IMG_SCALE);
         binarizedImg = imbinarize(img);
         letrasBW(:, letrasBWCol) = reshape(binarizedImg, 1, []);
@@ -27,7 +27,7 @@ end
 letrasTarget = flip(letrasTarget, 1);
 
 % CARREGAR NET
-net = load('net51.mat', 'net').net;
+net = load('net28x28.mat', 'net').net;
 % view(net)
 
 out = sim(net, letrasBW)

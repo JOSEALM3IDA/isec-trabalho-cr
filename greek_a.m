@@ -4,7 +4,9 @@ clc;
 clear all;
 close all;
 
-IMG_SCALE = 0.25;
+IMG_SCALE = 1/108; % 28x28
+
+%% Ler e redimensionar as imagens e preparar os targets
 
 letrasBW = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, 10);
 
@@ -15,12 +17,13 @@ for i=1:10
     letrasBW(:, i) = reshape(binarizedImg, 1, []);
 end
 
-disp(size(letrasBW))
 letrasTarget = [eye(10)];
+
+%% Preparar e treinar rede
 
 net = feedforwardnet([10]);
 
-net.trainFcn = 'trainrp';
+net.trainFcn = 'trainlm';
 net.layers{1}.transferFcn = 'tansig';
 net.layers{2}.transferFcn = 'purelin';
 net.divideFcn = 'dividerand';
@@ -28,14 +31,14 @@ net.divideParam.trainRatio = 1;
 net.divideParam.valRatio = 0;
 net.divideParam.testRatio = 0;
 
-view(net)
-
-% TREINAR
 [net,tr] = train(net, letrasBW, letrasTarget);
 
-disp(tr)
+%% Simular e analisar resultados
 
 out = sim(net, letrasBW)
+
+disp(tr);
+
 r = 0;
 for i=1:size(out,2)
     [a b] = max(out(:,i));
@@ -44,7 +47,6 @@ for i=1:size(out,2)
       r = r+1;
     end
 end
-
 
 accuracy = r/size(out,2);
 fprintf('Precisao total de treino %f\n', accuracy)
