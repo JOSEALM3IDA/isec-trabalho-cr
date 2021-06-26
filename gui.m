@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
     % Edit the above text to modify the response to help gui
 
-    % Last Modified by GUIDE v2.5 26-Jun-2021 04:12:13
+    % Last Modified by GUIDE v2.5 26-Jun-2021 15:42:00
 
     % Begin initialization code - DO NOT EDIT
     gui_Singleton = 1;
@@ -280,4 +280,27 @@ function EDIT_TRAINFOLDER_CreateFcn(hObject, eventdata, handles)
     if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
         set(hObject,'BackgroundColor','white');
     end
+end
+
+
+% --- Executes on selection change in ordemMenu.
+function ordemMenu_Callback(hObject, eventdata, handles)
+% hObject    handle to ordemMenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns ordemMenu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from ordemMenu
+
+
+% --- Executes during object creation, after setting all properties.
+function ordemMenu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ordemMenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
 end
