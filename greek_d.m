@@ -9,7 +9,7 @@ IMG_SCALE = 1/108; % 28x28
 %% Escolha de rede
 
 redeTreino = 51;    % Alterar o valor para a rede desejada
-letra = 1;       % Alterar o valor para o caracter desejado
+letra = 19;       % Alterar o valor para o caracter desejado
 
 netFileStr = strcat('net', int2str(redeTreino), 'c3.mat');
 net = load(netFileStr, 'net').net;
@@ -22,19 +22,24 @@ binarizedImg = imbinarize(img);
 letraBW(:, 1) = reshape(binarizedImg, 1, []);
 
 identity = eye(10);
-letraTarget = identity(:, rem(letra, 10));
 
-out = sim(net, letraBW);
+if (rem(letra, 10) == 0)
+    letraTarget = identity(:, 10);
+else
+    letraTarget = identity(:, rem(letra, 10));
+end
+
+out = sim(net, letraBW)
 
 [~, b] = max(out(:, 1));      
 [~, d] = max(letraTarget(:, 1));
 
 %% Analisar resultado
 
-possibleCharacters = ['α' 'β' 'γ' 'ε' 'η' 'θ' 'π' 'φ' 'ψ' 'ω'];
+possibleCharacters = ['α' 'β' 'γ' 'ε' 'η' 'θ' 'π' 'ρ' 'ψ' 'ω'];
 
-fprintf('Caracter correto: %c\n', possibleCharacters(d, 1));
-fprintf('Caracter escolhido pela rede: %c\n', possibleCharacters(b, 1));
+fprintf('Caracter correto: %c\n', possibleCharacters(d));
+fprintf('Caracter escolhido pela rede: %c\n', possibleCharacters(b));
 
 if (b == d)
     disp('Correto!');
