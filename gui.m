@@ -38,7 +38,7 @@ function varargout = gui(varargin)
 
     if nargout
         [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
-    else
+    els
         gui_mainfcn(gui_State, varargin{:});
     end
     
@@ -58,6 +58,7 @@ function gui_OpeningFcn(hObject, eventdata, handles, varargin)
     handles.hasNet = 0;
     set(findall(handles.PANEL_SIM_DATASET, '-property', 'enable'), 'enable', 'off');
     set(findall(handles.PANEL_SIM_CHAR, '-property', 'enable'), 'enable', 'off');
+    set(handles.TEXT_CRECONHECIDO, 'visible', 'off');
 
     % Choose default command line output for gui
     handles.output = hObject;
@@ -185,6 +186,7 @@ function SAVE_NN_MENU_Callback(hObject, eventdata, handles)
     % handles    structure with handles and user data (see GUIDATA)
 
     if (handles.hasNet ~= 1)
+        errordlg('Não existe uma rede para gravar!','ERRO');
         return;
     end
     
@@ -203,14 +205,17 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
     % handles    structure with handles and user data (see GUIDATA)
     
     if (isempty(get(handles.EDIT_NNCFG, 'String')))
+        errordlg('O campo "Topologia" não pode estar vazio!','ERRO');
         return;
     end
     
     if (isempty(get(handles.EDIT_ACTIVATIONFCN, 'String')))
+        errordlg('O campo "Funções de Ativação" não pode estar vazio!','ERRO');
         return;
     end
     
     if (isempty(get(handles.EDIT_TRAINFOLDER, 'String')))
+        errordlg('O campo "Pasta para Treino" não pode estar vazio!','ERRO');
         return;
     end
     
@@ -219,7 +224,7 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
     divTestStr = get(handles.EDIT_DIVTEST, 'String');
     
     if (~isreal(divTrainStr) || ~isreal(divValStr) || ~isreal(divTestStr))
-        disp('bola');
+        errordlg('Os parâmetros train, val e test somados têm de ser números reais!','ERRO');
         return;
     end
     
@@ -228,6 +233,7 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
     divTest = str2num(divTestStr);
     
     if (strcmp(get(handles.PUP_DIVIDEFCN, 'String'), 'divideind') == 0 & divTrain + divVal + divTest ~= 1)
+        errordlg('Para essa função de divisão, os parâmetros train, val e test somados têm de ser igual a 1!','ERRO');
         return;
     end
     
@@ -235,14 +241,15 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
     
     for i = 1: length(nnCfgCellArray)
         if (~isscalar(nnCfgCellArray(i)))
+            errordlg('O número de neurónios por camada deve ser inteiro!', 'ERRO');
             return;
         end
     end
     
     nnCfgStr = cell2mat(nnCfgCellArray);
-    
+    nnCfgValue = zeros(length(nnCfgStr));
     for i = 1: length(nnCfgStr)
-        nnCfgValue(i) = str2num(nnCfgStr(i, :));
+        nnCfgValue(i) = str2double(nnCfgStr(i, :));
     end
     
     handles.net = feedforwardnet(nnCfgValue);
@@ -267,6 +274,7 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
     activationFcnStrArray = string(activationFcnCellArray);
     
     if (length(activationFcnStrArray) ~= length(nnCfgValue) + 1)
+        errordlg('O número de funções de ativação deve ser igual ao número de hidden layers + 1!','ERRO');
         return;
     end
     
@@ -278,6 +286,7 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
     imgFiles = natsort({folderImg.name});
     
     if (isempty(imgFiles))
+        errordlg('Não existem imagens com o formato correto nessa pasta!','ERRO');
         return;
     end
 
@@ -485,6 +494,7 @@ function BTN_NETSIM_DATASET_Callback(hObject, eventdata, handles)
     imgFiles = natsort({folderImg.name});
     
     if (isempty(imgFiles))
+        errordlg('Não existem imagens com o formato correto nessa pasta!','ERRO');
         return;
     end
 
@@ -643,6 +653,7 @@ function BTN_NETSIM_FILE_Callback(hObject, eventdata, handles)
     possibleCharacters = ['α' 'β' 'γ' 'ε' 'η' 'θ' 'π' 'ρ' 'ψ' 'ω'];
     [~, b] = max(out(:, 1));      
     
+    set(handles.TEXT_CRECONHECIDO, 'visible', 'on');
     set(handles.STATIC_GUESS, 'String', possibleCharacters(b));
 end
 
@@ -657,7 +668,7 @@ function BTN_NETSIM_DRAWING_Callback(hObject, eventdata, handles)
     binaryImg = createMask(handles.ROI, [28 28]);
     
     boundaries = bwboundaries(binaryImg);
-    xy = boundaries{1}
+    xy = boundaries{1};
     x = xy(:, 2);
     y = xy(:, 1);
     hold on;
@@ -678,6 +689,7 @@ function BTN_NETSIM_DRAWING_Callback(hObject, eventdata, handles)
     possibleCharacters = ['α' 'β' 'γ' 'ε' 'η' 'θ' 'π' 'ρ' 'ψ' 'ω'];
     [~, b] = max(out(:, 1));      
     
+    set(handles.TEXT_CRECONHECIDO, 'visible', 'on');
     set(handles.STATIC_GUESS, 'String', possibleCharacters(b));
 end
 
