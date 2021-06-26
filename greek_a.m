@@ -4,15 +4,15 @@ clc;
 clear all;
 close all;
 
-IMG_SCALE = 1/108; % 28x28
+IMG_RES = [28 28];
 
 %% Ler e redimensionar as imagens e preparar os targets
 
-letrasBW = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, 10);
+letrasBW = zeros(IMG_RES(1) * IMG_RES(1), 10);
 
 for i=1:10
     img = imread(sprintf('Pasta1\\%d.jpg', i));
-    img = imresize(img, IMG_SCALE);
+    img = imresize(img, IMG_RES);
     binarizedImg = imbinarize(img);
     letrasBW(:, i) = reshape(binarizedImg, 1, []);
 end

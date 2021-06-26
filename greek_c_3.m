@@ -4,7 +4,7 @@ clc;
 clear all;
 close all;
 
-IMG_SCALE = 1/108; % 28x28
+IMG_RES = [28 28];
 
 %% Escolha de rede
 
@@ -87,11 +87,11 @@ end
 
 %% Preparar pasta 1 para treino
 
-letrasBW1 = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, 10);
+letrasBW1 = zeros(IMG_RES(1) * IMG_RES(1), 10);
 
 for i=1:10
     img = imread(sprintf('Pasta1\\%d.jpg', i));
-    img = imresize(img, IMG_SCALE);
+    img = imresize(img, IMG_RES);
     binarizedImg = imbinarize(img);
     letrasBW1(:, i) = reshape(binarizedImg, 1, []);
 end
@@ -103,14 +103,14 @@ letrasTarget1 = [eye(10)];
 folderImg = dir('Pasta2\\letter_bnw_*.jpg');
 imgFiles = natsort({folderImg.name});
 
-letrasBW2 = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, length(imgFiles));
+letrasBW2 = zeros(IMG_RES(1) * IMG_RES(1), length(imgFiles));
 letrasTarget2 = [];
 letrasBWCol = 1;
 
 for i = 1: length(imgFiles) / 10   
     for j = 1: 10
         img = imread(sprintf('Pasta2\\%s', char(imgFiles(((j - 1) * 10) + i))));
-        img = imresize(img, IMG_SCALE);
+        img = imresize(img, IMG_RES);
         binarizedImg = imbinarize(img);
         letrasBW2(:, letrasBWCol) = reshape(binarizedImg, 1, []);
         letrasBWCol = letrasBWCol + 1;
@@ -127,14 +127,14 @@ letrasTarget2 = flip(letrasTarget2, 1);
 folderImg = dir('Pasta3\\letter_bnw_test_*.jpg');
 imgFiles = natsort({folderImg.name});
 
-letrasBW3 = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, length(imgFiles));
+letrasBW3 = zeros(IMG_RES(1) * IMG_RES(1), length(imgFiles));
 letrasTarget3 = [];
 letrasBWCol = 1;
 
 for i = 1: length(imgFiles) / 10  
     for j=1:10
         img = imread(sprintf('Pasta3\\%s', char(imgFiles(((j - 1) * 4) + i))));
-        img = imresize(img, IMG_SCALE);
+        img = imresize(img, IMG_RES);
         binarizedImg = imbinarize(img);
         letrasBW3(:, letrasBWCol) = reshape(binarizedImg, 1, []);
         letrasBWCol = letrasBWCol + 1;

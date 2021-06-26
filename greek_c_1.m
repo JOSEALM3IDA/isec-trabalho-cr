@@ -4,20 +4,20 @@ clc;
 clear all;
 close all;
 
-IMG_SCALE = 1/108; % 28x28
+IMG_RES = [28 28];
 
 %% Ler e redimensionar as imagens e preparar os targets
 
 folderImg = dir('Pasta3\\letter_bnw_test_*.jpg');
 imgFiles = natsort({folderImg.name});
 
-letrasBW = zeros(3024 * 3024 * IMG_SCALE * IMG_SCALE, length(imgFiles));
+letrasBW = zeros(IMG_RES(1) * IMG_RES(1), length(imgFiles));
 letrasTarget = [];
 letrasBWCol = 1;
 for i=1:length(imgFiles)/10  
     for j=1:10
         img = imread(sprintf('Pasta3\\%s', char(imgFiles(((j - 1) * 4) + i))));
-        img = imresize(img, IMG_SCALE);
+        img = imresize(img, IMG_RES);
         binarizedImg = imbinarize(img);
         letrasBW(:, letrasBWCol) = reshape(binarizedImg, 1, []);
         letrasBWCol = letrasBWCol + 1;

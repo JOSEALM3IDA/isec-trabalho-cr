@@ -4,7 +4,7 @@ clc;
 clear all;
 close all;
 
-IMG_SCALE = 1/108; % 28x28
+IMG_RES = [28 28];
 
 %% Escolha de rede
 
@@ -17,7 +17,7 @@ net = load(netFileStr, 'net').net;
 %% Testar rede com caracter dado
 
 img = imread(sprintf('Pasta4\\%d.jpg', letra));
-img = imresize(img, IMG_SCALE);
+img = imresize(img, IMG_RES);
 binarizedImg = imbinarize(img);
 letraBW(:, 1) = reshape(binarizedImg, 1, []);
 

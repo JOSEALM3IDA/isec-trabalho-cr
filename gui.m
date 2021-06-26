@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
     % Edit the above text to modify the response to help gui
 
-    % Last Modified by GUIDE v2.5 26-Jun-2021 15:42:00
+    % Last Modified by GUIDE v2.5 27-Jun-2021 00:04:05
 
     % Begin initialization code - DO NOT EDIT
     gui_Singleton = 1;
@@ -53,8 +53,11 @@ function gui_OpeningFcn(hObject, eventdata, handles, varargin)
     % handles    structure with handles and user data (see GUIDATA)
     % varargin   command line arguments to gui (see VARARGIN)
     
-    handles.IMG_SCALE = 1/108; % 28x28
+    handles.IMG_RES = [28 28];
+    
     handles.hasNet = 0;
+    set(findall(handles.PANEL_SIM_DATASET, '-property', 'enable'), 'enable', 'off');
+    set(findall(handles.PANEL_SIM_CHAR, '-property', 'enable'), 'enable', 'off');
 
     % Choose default command line output for gui
     handles.output = hObject;
@@ -85,10 +88,24 @@ function LOAD_NN_MENU_Callback(hObject, eventdata, handles)
     
     [fName, fPath] = uigetfile;
     
+    if (fName == 0)
+        return;
+    end
+    
+    if (fPath == 0)
+        return;
+    end
+    
     netFileStr = strcat(fPath, fName);
     handles.net = load(netFileStr, 'net').net;
     
     handles.hasNet = 1;
+    set(findall(handles.PANEL_SIM_DATASET, '-property', 'enable'), 'enable', 'on');
+    set(findall(handles.PANEL_SIM_CHAR, '-property', 'enable'), 'enable', 'on');
+    set(handles.BTN_NETSIM_DRAWING, 'enable', 'off');
+    
+    % Update handles structure
+    guidata(hObject, handles);
 end
 
 
@@ -170,7 +187,12 @@ function SAVE_NN_MENU_Callback(hObject, eventdata, handles)
     if (handles.hasNet ~= 1)
         return;
     end
+    
+    [fName, fPath] = uiputfile('*.mat', 'Gravar Neural Network');
 
+    net = handles.net;
+    
+    save(sprintf("%s\\%s", fPath, fName), 'net');
 end
 
 
@@ -185,6 +207,27 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
     end
     
     if (isempty(get(handles.EDIT_ACTIVATIONFCN, 'String')))
+        return;
+    end
+    
+    if (isempty(get(handles.EDIT_TRAINFOLDER, 'String')))
+        return;
+    end
+    
+    divTrainStr = get(handles.EDIT_DIVTRAIN, 'String');
+    divValStr = get(handles.EDIT_DIVVAL, 'String');
+    divTestStr = get(handles.EDIT_DIVTEST, 'String');
+    
+    if (~isreal(divTrainStr) || ~isreal(divValStr) || ~isreal(divTestStr))
+        disp('bola');
+        return;
+    end
+    
+    divTrain = str2num(divTrainStr);
+    divVal = str2num(divValStr);
+    divTest = str2num(divTestStr);
+    
+    if (strcmp(get(handles.PUP_DIVIDEFCN, 'String'), 'divideind') == 0 & divTrain + divVal + divTest ~= 1)
         return;
     end
     
@@ -210,6 +253,16 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
     
     handles.net.trainFcn = trainFcnStr;
     
+    divFcnCell = get(handles.PUP_DIVIDEFCN, 'String');
+    divFcnCell = divFcnCell(get(handles.PUP_DIVIDEFCN, 'Value'));
+    divFcnStr = cell2mat(divFcnCell);
+    
+    handles.net.divideFcn = divFcnStr;
+    
+    handles.net.divideParam.trainRatio = divTrain;
+    handles.net.divideParam.valRatio = divVal;
+    handles.net.divideParam.testRatio = divTest;
+    
     activationFcnCellArray = split(get(handles.EDIT_ACTIVATIONFCN, 'String'));
     activationFcnStrArray = string(activationFcnCellArray);
     
@@ -222,9 +275,13 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
     end
     
     folderImg = dir(sprintf("%s\\*.jpg", get(handles.EDIT_TRAINFOLDER, 'String')));
-    imgFiles = natsort({folderImg.name})
+    imgFiles = natsort({folderImg.name});
+    
+    if (isempty(imgFiles))
+        return;
+    end
 
-    letrasBW = zeros(3024 * 3024 * handles.IMG_SCALE * handles.IMG_SCALE, length(imgFiles));
+    letrasBW = zeros(handles.IMG_RES(1) * handles.IMG_RES(1), length(imgFiles));
     letrasTarget = [];
     letrasBWCol = 1;
     
@@ -235,7 +292,7 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
             img = imread(sprintf('%s\\%s', get(handles.EDIT_TRAINFOLDER, 'String'), char(imgFiles(((j - 1) * jump) + i))));
 %             imshow(img);
 %             pause(0.05);
-            img = imresize(img, handles.IMG_SCALE);
+            img = imresize(img, handles.IMG_RES);
             binarizedImg = imbinarize(img);
             letrasBW(:, letrasBWCol) = reshape(binarizedImg, 1, []);
             letrasBWCol = letrasBWCol + 1;
@@ -243,12 +300,30 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
 
         letrasTarget = [letrasTarget eye(10)];
     end
+    
+    if (get(handles.ordemMenuTrain, 'Value') == 2)
+        flip(letrasTarget, 1);
+    end
+    
+    [handles.net, ~] = train(handles.net, letrasBW, letrasTarget);
+    out = sim(handles.net, letrasBW);
+    
+    handles.hasNet = 1;
+    set(findall(handles.PANEL_SIM_DATASET, '-property', 'enable'), 'enable', 'on');
+    set(findall(handles.PANEL_SIM_CHAR, '-property', 'enable'), 'enable', 'on');
+    set(handles.BTN_NETSIM_DRAWING, 'enable', 'off');
+    
+    figure;
+    plotconfusion(letrasTarget, out, 'Train -'); 
+    
+    % Update handles structure
+    guidata(hObject, handles);
 end
 
 
-% --- Executes on button press in BTN_CHOOSEDIR.
-function BTN_CHOOSEDIR_Callback(hObject, eventdata, handles)
-    % hObject    handle to BTN_CHOOSEDIR (see GCBO)
+% --- Executes on button press in BTN_CHOOSEDIRTRAIN.
+function BTN_CHOOSEDIRTRAIN_Callback(hObject, eventdata, handles)
+    % hObject    handle to BTN_CHOOSEDIRTRAIN (see GCBO)
     % eventdata  reserved - to be defined in a future version of MATLAB
     % handles    structure with handles and user data (see GUIDATA)
 
@@ -283,24 +358,378 @@ function EDIT_TRAINFOLDER_CreateFcn(hObject, eventdata, handles)
 end
 
 
-% --- Executes on selection change in ordemMenu.
-function ordemMenu_Callback(hObject, eventdata, handles)
-% hObject    handle to ordemMenu (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+% --- Executes on selection change in ordemMenuTrain.
+function ordemMenuTrain_Callback(hObject, eventdata, handles)
+    % hObject    handle to ordemMenuTrain (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns ordemMenu contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from ordemMenu
+    % Hints: contents = cellstr(get(hObject,'String')) returns ordemMenuTrain contents as cell array
+    %        contents{get(hObject,'Value')} returns selected item from ordemMenuTrain
+end
+
+% --- Executes during object creation, after setting all properties.
+function ordemMenuTrain_CreateFcn(hObject, eventdata, handles)
+    % hObject    handle to ordemMenuTrain (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    empty - handles not created until after all CreateFcns called
+
+    % Hint: popupmenu controls usually have a white background on Windows.
+    %       See ISPC and COMPUTER.
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+end
+
+
+% --- Executes on selection change in PUP_DIVIDEFCN.
+function PUP_DIVIDEFCN_Callback(hObject, eventdata, handles)
+    % hObject    handle to PUP_DIVIDEFCN (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+
+    % Hints: contents = cellstr(get(hObject,'String')) returns PUP_DIVIDEFCN contents as cell array
+    %        contents{get(hObject,'Value')} returns selected item from PUP_DIVIDEFCN
+end
+
+% --- Executes during object creation, after setting all properties.
+function PUP_DIVIDEFCN_CreateFcn(hObject, eventdata, handles)
+    % hObject    handle to PUP_DIVIDEFCN (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    empty - handles not created until after all CreateFcns called
+
+    % Hint: popupmenu controls usually have a white background on Windows.
+    %       See ISPC and COMPUTER.
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+end
+
+
+function EDIT_DIVTRAIN_Callback(hObject, eventdata, handles)
+    % hObject    handle to EDIT_DIVTRAIN (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+
+    % Hints: get(hObject,'String') returns contents of EDIT_DIVTRAIN as text
+    %        str2double(get(hObject,'String')) returns contents of EDIT_DIVTRAIN as a double
+end
+
+% --- Executes during object creation, after setting all properties.
+function EDIT_DIVTRAIN_CreateFcn(hObject, eventdata, handles)
+    % hObject    handle to EDIT_DIVTRAIN (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    empty - handles not created until after all CreateFcns called
+
+    % Hint: edit controls usually have a white background on Windows.
+    %       See ISPC and COMPUTER.
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+end
+
+
+function EDIT_DIVVAL_Callback(hObject, eventdata, handles)
+    % hObject    handle to EDIT_DIVVAL (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+
+    % Hints: get(hObject,'String') returns contents of EDIT_DIVVAL as text
+    %        str2double(get(hObject,'String')) returns contents of EDIT_DIVVAL as a double
+end
+
+% --- Executes during object creation, after setting all properties.
+function EDIT_DIVVAL_CreateFcn(hObject, eventdata, handles)
+    % hObject    handle to EDIT_DIVVAL (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    empty - handles not created until after all CreateFcns called
+
+    % Hint: edit controls usually have a white background on Windows.
+    %       See ISPC and COMPUTER.
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+end
+
+
+function EDIT_DIVTEST_Callback(hObject, eventdata, handles)
+    % hObject    handle to EDIT_DIVTEST (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+
+    % Hints: get(hObject,'String') returns contents of EDIT_DIVTEST as text
+    %        str2double(get(hObject,'String')) returns contents of EDIT_DIVTEST as a double
+end
+
+% --- Executes during object creation, after setting all properties.
+function EDIT_DIVTEST_CreateFcn(hObject, eventdata, handles)
+    % hObject    handle to EDIT_DIVTEST (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    empty - handles not created until after all CreateFcns called
+
+    % Hint: edit controls usually have a white background on Windows.
+    %       See ISPC and COMPUTER.
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+end
+
+
+% --- Executes on button press in BTN_NETSIM_DATASET.
+function BTN_NETSIM_DATASET_Callback(hObject, eventdata, handles)
+    % hObject    handle to BTN_NETSIM_DATASET (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+    
+    folderImg = dir(sprintf("%s\\*.jpg", get(handles.EDIT_SIMFOLDER, 'String')));
+    imgFiles = natsort({folderImg.name});
+    
+    if (isempty(imgFiles))
+        return;
+    end
+
+    letrasBW = zeros(handles.IMG_RES(1) * handles.IMG_RES(1), length(imgFiles));
+    letrasTarget = [];
+    letrasBWCol = 1;
+    
+    jump = length(imgFiles) / 10;
+
+    for i = 1: jump
+        for j = 1: 10
+            img = imread(sprintf('%s\\%s', get(handles.EDIT_SIMFOLDER, 'String'), char(imgFiles(((j - 1) * jump) + i))));
+%             imshow(img);
+%             pause(0.05);
+            img = imresize(img, handles.IMG_RES);
+            binarizedImg = imbinarize(img);
+            letrasBW(:, letrasBWCol) = reshape(binarizedImg, 1, []);
+            letrasBWCol = letrasBWCol + 1;
+        end
+
+        letrasTarget = [letrasTarget eye(10)];
+    end
+    
+    if (get(handles.ordemMenuSim, 'Value') == 2)
+        flip(letrasTarget, 1);
+    end
+    
+    out = sim(handles.net, letrasBW);
+    
+    figure;
+    plotconfusion(letrasTarget, out, 'Simulation w/ Dataset -');
+end
+
+% --- Executes on button press in BTN_CHOOSEDIRSIM.
+function BTN_CHOOSEDIRSIM_Callback(hObject, eventdata, handles)
+    % hObject    handle to BTN_CHOOSEDIRSIM (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+    
+    set(handles.EDIT_SIMFOLDER, 'String', uigetdir('.', "Escolher pasta para treino"));
+    
+    if (get(handles.EDIT_SIMFOLDER, 'String') == '0')
+        set(handles.EDIT_SIMFOLDER, 'String', 'C:\');
+    end
+end
+
+
+function EDIT_SIMFOLDER_Callback(hObject, eventdata, handles)
+    % hObject    handle to EDIT_SIMFOLDER (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+
+    % Hints: get(hObject,'String') returns contents of EDIT_SIMFOLDER as text
+    %        str2double(get(hObject,'String')) returns contents of EDIT_SIMFOLDER as a double
+end
+
+% --- Executes during object creation, after setting all properties.
+function EDIT_SIMFOLDER_CreateFcn(hObject, eventdata, handles)
+    % hObject    handle to EDIT_SIMFOLDER (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    empty - handles not created until after all CreateFcns called
+
+    % Hint: edit controls usually have a white background on Windows.
+    %       See ISPC and COMPUTER.
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+end
+
+% --- Executes on selection change in ordemMenuSim.
+function ordemMenuSim_Callback(hObject, eventdata, handles)
+    % hObject    handle to ordemMenuSim (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+
+    % Hints: contents = cellstr(get(hObject,'String')) returns ordemMenuSim contents as cell array
+    %        contents{get(hObject,'Value')} returns selected item from ordemMenuSim
+end
+
+% --- Executes during object creation, after setting all properties.
+function ordemMenuSim_CreateFcn(hObject, eventdata, handles)
+    % hObject    handle to ordemMenuSim (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    empty - handles not created until after all CreateFcns called
+
+    % Hint: popupmenu controls usually have a white background on Windows.
+    %       See ISPC and COMPUTER.
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+end
+
+
+% --- Executes on button press in BTN_CHOOSEFILESIM.
+function BTN_CHOOSEFILESIM_Callback(hObject, eventdata, handles)
+    % hObject    handle to BTN_CHOOSEFILESIM (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+    
+    [fName, fPath] = uigetfile('*.jpg', "Escolher ficheiro para simulação");
+    tempStr = sprintf('%s%s', fPath, fName);
+    
+    set(handles.EDIT_SIMFILE, 'String', tempStr);
+    
+    if (get(handles.EDIT_SIMFILE, 'String') == '0')
+        set(handles.EDIT_SIMFILE, 'String', 'C:\1.jpg');
+    end
+    
+    img = imread(sprintf("%s%s", fPath, fName));
+    imshow(img, 'Parent', handles.imgAxes);
+end
+
+
+function EDIT_SIMFILE_Callback(hObject, eventdata, handles)
+    % hObject    handle to EDIT_SIMFILE (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+
+    % Hints: get(hObject,'String') returns contents of EDIT_SIMFILE as text
+    %        str2double(get(hObject,'String')) returns contents of EDIT_SIMFILE as a double
+end
+
+% --- Executes during object creation, after setting all properties.
+function EDIT_SIMFILE_CreateFcn(hObject, eventdata, handles)
+    % hObject    handle to EDIT_SIMFILE (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    empty - handles not created until after all CreateFcns called
+
+    % Hint: edit controls usually have a white background on Windows.
+    %       See ISPC and COMPUTER.
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+end
+
+
+% --- Executes on button press in BTN_NETSIM_FILE.
+function BTN_NETSIM_FILE_Callback(hObject, eventdata, handles)
+    % hObject    handle to BTN_NETSIM_FILE (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+    
+    imgFile = get(handles.EDIT_SIMFILE, 'String');
+
+    letrasBW = zeros(handles.IMG_RES(1) * handles.IMG_RES(1), 1);
+
+    img = imread(imgFile);
+    imshow(img, 'Parent', handles.imgAxes);
+
+    img = imresize(img, [28 28]);
+    binarizedImg = imbinarize(img);
+    letrasBW(:, 1) = reshape(binarizedImg, 1, []);
+    
+    out = sim(handles.net, letrasBW);
+    
+    possibleCharacters = ['α' 'β' 'γ' 'ε' 'η' 'θ' 'π' 'ρ' 'ψ' 'ω'];
+    [~, b] = max(out(:, 1));      
+    
+    set(handles.STATIC_GUESS, 'String', possibleCharacters(b));
+end
+
+% --- Executes on button press in BTN_NETSIM_DRAWING.
+function BTN_NETSIM_DRAWING_Callback(hObject, eventdata, handles)
+    % hObject    handle to BTN_NETSIM_DRAWING (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+
+    letrasBW = zeros(3024 * 3024 * handles.IMG_RES * handles.IMG_RES, 1);
+
+    binaryImg = createMask(handles.ROI, [28 28]);
+    
+    boundaries = bwboundaries(binaryImg);
+    xy = boundaries{1}
+    x = xy(:, 2);
+    y = xy(:, 1);
+    hold on;
+    plot(handles.drawAxes, x, y, 'Color', [0 0 0], 'LineWidth', 15);
+    
+    disp(findobj(handles.drawAxes, 'Tag', 'letter'))
+    figure;
+    imshow(handles.drawAxes);
+    figure;
+    imshow(img);
+
+    img = imresize(img, [28 28]);
+    binarizedImg = imbinarize(img);
+    letrasBW(:, 1) = reshape(binarizedImg, 1, []);
+    
+    out = sim(handles.net, letrasBW);
+    
+    possibleCharacters = ['α' 'β' 'γ' 'ε' 'η' 'θ' 'π' 'ρ' 'ψ' 'ω'];
+    [~, b] = max(out(:, 1));      
+    
+    set(handles.STATIC_GUESS, 'String', possibleCharacters(b));
+end
 
 
 % --- Executes during object creation, after setting all properties.
-function ordemMenu_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to ordemMenu (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
+function drawAxes_CreateFcn(hObject, eventdata, handles)
+    % hObject    handle to drawAxes (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    empty - handles not created until after all CreateFcns called
 
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
+    % Hint: place code in OpeningFcn to populate drawAxes
+    
+    set(gca, 'XColor', 'none', 'YColor', 'none');
+end
+
+
+% --- Executes on mouse press over axes background.
+function drawAxes_ButtonDownFcn(hObject, eventdata, handles)
+    % hObject    handle to drawAxes (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+    disp('bruh');
+    
+    if (strcmp(get(gcf,'SelectionType'), 'alt'))
+        cla(handles.drawAxes);
+        return;
+    end
+
+    handles.ROI = drawfreehand(handles.drawAxes, 'Tag', 'letter', 'Closed', 0, 'Color', [0 0 0], 'LineWidth', 15, 'FaceAlpha', 0);
+    
+    % Update handles structure
+    guidata(hObject, handles);
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function imgAxes_CreateFcn(hObject, eventdata, handles)
+    % hObject    handle to imgAxes (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    empty - handles not created until after all CreateFcns called
+
+    % Hint: place code in OpeningFcn to populate imgAxes
+
+    set(gca,'XColor', 'none', 'YColor', 'none');
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function BTN_NETSIM_DRAWING_CreateFcn(hObject, eventdata, handles)
+    % hObject    handle to BTN_NETSIM_DRAWING (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    empty - handles not created until after all CreateFcns called
+
+    set(hObject, 'enable', 'inactive');
 end
