@@ -59,8 +59,6 @@
 	\section{Conversão e Tratamento das Imagens: Inputs e Targets}
 	\normalsize
 	
-	Seguindo as indicações sobre arquitetura do projeto, foram adicionados diversos packages de modo a estruturar logicamente o código. Estão organizados da seguinte forma:
-	
 	O dataset usado no trabalho é constituído por 4 pastas. Destas 4, uma foi criada por nós, com 2 caracteres gregos de cada um dos 10 que devem ser identificáveis pelas redes. As outras 3 foram fornecidas junto com o enunciado, e não tiveram qualquer tratamento prévio fora do MATLAB.
 	
 	De modo a diminuir os custos de tempo e memória de treino, as imagens, ao serem lidas pelo programa, são redimensionadas para 28x28 (de 3024x3024). De seguida, são colocadas em matrizes binárias e convertidas em uma única coluna, pois, no MATLAB, as redes neuronais recebem os seus \textit{inputs} na forma de colunas de uma matriz.
@@ -86,7 +84,7 @@
 	
 	Por fim, foram testadas várias configurações possíveis para funções de ativação. A partir destes testes, concluímos que usar a função de ativação \textbf{purelin} na camada de output tem melhores resultados.
 	
-	No entanto, os testes efetuados na pasta 1 não são muito significativos, pois até mesmo a configuração base escolhida obtém valores ótimos de desempenho. Isto deve-se ao facto de que as redes, nestes testes, estão a ter acesso e a usar para treino todos os exemplos da pasta. Nesta pasta existe apenas um exemplo por carater gregp possível, tornando-se impossível não usar 100\% das imagens para treino.
+	No entanto, os testes efetuados na pasta 1 não são muito significativos, pois até mesmo a configuração base escolhida obtém valores ótimos de desempenho. Isto deve-se ao facto de que as redes, nestes testes, estão a ter acesso e a usar para treino todos os exemplos da pasta. Nesta pasta existe apenas um exemplo por carater grego possível, tornando-se impossível não usar 100\% das imagens para treino.
 	
 	\pagebreak
 	
