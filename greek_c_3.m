@@ -87,7 +87,7 @@ end
 
 %% Preparar pasta 1 para treino
 
-letrasBW1 = zeros(IMG_RES(1) * IMG_RES(1), 10);
+letrasBW1 = zeros(IMG_RES(1) * IMG_RES(2), 10);
 
 for i=1:10
     img = imread(sprintf('Pasta1\\%d.jpg', i));
@@ -103,7 +103,7 @@ letrasTarget1 = [eye(10)];
 folderImg = dir('Pasta2\\letter_bnw_*.jpg');
 imgFiles = natsort({folderImg.name});
 
-letrasBW2 = zeros(IMG_RES(1) * IMG_RES(1), length(imgFiles));
+letrasBW2 = zeros(IMG_RES(1) * IMG_RES(2), length(imgFiles));
 letrasTarget2 = [];
 letrasBWCol = 1;
 
@@ -127,7 +127,7 @@ letrasTarget2 = flip(letrasTarget2, 1);
 folderImg = dir('Pasta3\\letter_bnw_test_*.jpg');
 imgFiles = natsort({folderImg.name});
 
-letrasBW3 = zeros(IMG_RES(1) * IMG_RES(1), length(imgFiles));
+letrasBW3 = zeros(IMG_RES(1) * IMG_RES(2), length(imgFiles));
 letrasTarget3 = [];
 letrasBWCol = 1;
 

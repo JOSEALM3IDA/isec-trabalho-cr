@@ -1,10 +1,10 @@
 \babel@toc {portuguese}{}
-\contentsline {section}{\numberline {1}Introdução}{2}{}%
-\contentsline {section}{\numberline {2}Conversão e Tratamento das Imagens}{2}{}%
-\contentsline {section}{\numberline {3}Padrões de Programação}{3}{}%
-\contentsline {subsection}{\numberline {3.1}Máquina de Estados}{3}{}%
-\contentsline {subsection}{\numberline {3.2}Command}{4}{}%
-\contentsline {subsection}{\numberline {3.3}Factory}{4}{}%
-\contentsline {section}{\numberline {4}Classes}{5}{}%
-\contentsline {section}{\numberline {5}Funcionalidades Implementadas}{7}{}%
-\contentsline {section}{\numberline {6}Anexos}{7}{}%
+\contentsline {section}{\numberline {1}Introdução}{2}{section.1}%
+\contentsline {section}{\numberline {2}Conversão e Tratamento das Imagens: Inputs e Targets}{2}{section.2}%
+\contentsline {section}{\numberline {3}Padrões de Programação}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Máquina de Estados}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Command}{4}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Factory}{4}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Classes}{5}{section.4}%
+\contentsline {section}{\numberline {5}Funcionalidades Implementadas}{7}{section.5}%
+\contentsline {section}{\numberline {6}Anexos}{7}{section.6}%

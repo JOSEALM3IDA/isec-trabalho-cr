@@ -8,7 +8,7 @@ IMG_RES = [28 28];
 
 %% Ler e redimensionar as imagens e preparar os targets
 
-letrasBW = zeros(IMG_RES(1) * IMG_RES(1), 10);
+letrasBW = zeros(IMG_RES(1) * IMG_RES(2), 10);
 
 for i=1:10
     img = imread(sprintf('Pasta1\\%d.jpg', i));

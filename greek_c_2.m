@@ -11,7 +11,7 @@ IMG_RES = [28 28];
 folderImg = dir('Pasta3\\letter_bnw_test_*.jpg');
 imgFiles = natsort({folderImg.name});
 
-letrasBW = zeros(IMG_RES(1) * IMG_RES(1), length(imgFiles));
+letrasBW = zeros(IMG_RES(1) * IMG_RES(2), length(imgFiles));
 letrasTarget = [];
 letrasBWCol = 1;
 for i=1:length(imgFiles)/10  
@@ -131,7 +131,7 @@ fprintf('Precisao total de treino %f\n', accuracy)
 
 %% Testar rede com pasta 1
 
-letrasBW = zeros(IMG_RES(1) * IMG_RES(1), 10);
+letrasBW = zeros(IMG_RES(1) * IMG_RES(2), 10);
 
 for i = 1: 10
     img = imread(sprintf('Pasta1\\%d.jpg', i));
@@ -160,7 +160,7 @@ fprintf('Precisão total de simulação para a pasta 1: %f\n', accuracy);
 folderImg = dir('Pasta2\\letter_bnw_*.jpg');
 imgFiles = natsort({folderImg.name});
 
-letrasBW = zeros(IMG_RES(1) * IMG_RES(1), length(imgFiles));
+letrasBW = zeros(IMG_RES(1) * IMG_RES(2), length(imgFiles));
 letrasTarget2 = [];
 letrasBWCol = 1;
 
@@ -198,7 +198,7 @@ fprintf('Precisão total de simulação para a pasta 2: %f\n', accuracy);
 folderImg = dir('Pasta3\\letter_bnw_test_*.jpg');
 imgFiles = natsort({folderImg.name});
 
-letrasBW = zeros(IMG_RES(1) * IMG_RES(1), length(imgFiles));
+letrasBW = zeros(IMG_RES(1) * IMG_RES(2), length(imgFiles));
 letrasTarget3 = [];
 letrasBWCol = 1;
 for i = 1: length(imgFiles) / 10  

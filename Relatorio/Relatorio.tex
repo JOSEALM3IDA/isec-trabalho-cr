@@ -6,12 +6,19 @@
 \usepackage{tabularx}
 \usepackage{listingsutf8}
 \usepackage{color}
+\usepackage{hyperref}
 \usepackage[portuguese]{babel}
 
 \graphicspath{{./images/}}
 
 \def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;} 
 \setlength{\parskip}{0.5em}
+
+\hypersetup{
+	colorlinks=false,
+	linktoc=all,
+	hidelinks,
+}
 
 \lstset{
 	belowcaptionskip=1\baselineskip,
@@ -81,13 +88,6 @@
 	 	\item A transição \textbf{enviarRespostaMinijogo} verifica se o minijogo já terminou. Se sim, volta ao estado \textbf{pedeDecisaoJogada}. Se não, fica no mesmo estado.
 	 	\item A transição \textbf{avancar}, no estado \textbf{assisteJogada}, verifica se há mais jogadas a apresentar. Se sim, fica no mesmo estado. Se não, volta ao estado \textbf{pedeDecisaoInicio}.
 	 \end{itemize}
-	 
-	 \begin{figure}[h]
-	 	\includegraphics[width=0.8\textwidth]{diagrama-estados}
-	 	\centering
-	 	\caption{Diagrama de Estados}
-	 	\label{fig:diag-estados}
-	 \end{figure}
 	
 	\pagebreak
 	
@@ -136,13 +136,6 @@
 	Nota: As classes utilitárias e as enums não se encontram no esquema, devido a serem públicas e acessíveis em todo o programa.
 	
 	\vspace{0.5cm}
-	
-	\begin{figure}[h]
-		\includegraphics[width=1\textwidth]{diagrama-classes}
-		\centering
-		\caption{Diagrama de Classes}
-		\label{fig:diag-classes}
-	\end{figure}
 
 	\pagebreak
 	

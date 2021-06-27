@@ -38,7 +38,7 @@ function varargout = gui(varargin)
 
     if nargout
         [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
-    els
+    else
         gui_mainfcn(gui_State, varargin{:});
     end
     
@@ -191,6 +191,14 @@ function SAVE_NN_MENU_Callback(hObject, eventdata, handles)
     end
     
     [fName, fPath] = uiputfile('*.mat', 'Gravar Neural Network');
+    
+    if (fName == 0)
+        return;
+    end
+    
+    if (fPath == 0)
+        return;
+    end
 
     net = handles.net;
     
@@ -224,7 +232,7 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
     divTestStr = get(handles.EDIT_DIVTEST, 'String');
     
     if (~isreal(divTrainStr) || ~isreal(divValStr) || ~isreal(divTestStr))
-        errordlg('Os parâmetros train, val e test somados têm de ser números reais!','ERRO');
+        errordlg('Os parâmetros train, val e test têm de ser números reais!','ERRO');
         return;
     end
     
@@ -232,9 +240,20 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
     divVal = str2num(divValStr);
     divTest = str2num(divTestStr);
     
-    if (strcmp(get(handles.PUP_DIVIDEFCN, 'String'), 'divideind') == 0 & divTrain + divVal + divTest ~= 1)
-        errordlg('Para essa função de divisão, os parâmetros train, val e test somados têm de ser igual a 1!','ERRO');
-        return;
+    trainFcnCell = get(handles.PUP_TRAINFCN, 'String');
+    trainFcnCell = trainFcnCell(get(handles.PUP_TRAINFCN, 'Value'));
+    trainFcnStr = cell2mat(trainFcnCell);
+    
+    if (strcmp(trainFcnStr, 'divideind') == 0)
+        if (divTrain < 0 || divVal < 0 || divTest < 0)
+            errordlg('Os parâmetros train, val e test devem ser maiores ou iguais a 0!','ERRO');
+            return;
+        end
+        
+        if ((divTrain + divVal + divTest) ~= 1)
+            errordlg('Para essa função de divisão, os parâmetros train, val e test somados têm de ser igual a 1!','ERRO');
+            return;
+        end
     end
     
     nnCfgCellArray = split(get(handles.EDIT_NNCFG, 'String'));
@@ -246,17 +265,16 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
         end
     end
     
-    nnCfgStr = cell2mat(nnCfgCellArray);
-    nnCfgValue = zeros(length(nnCfgStr));
-    for i = 1: length(nnCfgStr)
-        nnCfgValue(i) = str2double(nnCfgStr(i, :));
+    for i = 1: length(nnCfgCellArray)
+        nnCfgValue(i) = str2double([nnCfgCellArray{i, :}]');
+        
+        if (nnCfgValue(i) <= 0)
+            errordlg('A topologia tem que ser composta por valores positivos!', 'ERRO');
+            return;
+        end
     end
     
     handles.net = feedforwardnet(nnCfgValue);
-    
-    trainFcnCell = get(handles.PUP_TRAINFCN, 'String');
-    trainFcnCell = trainFcnCell(get(handles.PUP_TRAINFCN, 'Value'));
-    trainFcnStr = cell2mat(trainFcnCell);
     
     handles.net.trainFcn = trainFcnStr;
     
@@ -273,13 +291,18 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
     activationFcnCellArray = split(get(handles.EDIT_ACTIVATIONFCN, 'String'));
     activationFcnStrArray = string(activationFcnCellArray);
     
-    if (length(activationFcnStrArray) ~= length(nnCfgValue) + 1)
+    if (length(activationFcnStrArray) ~= (length(nnCfgValue) + 1))
         errordlg('O número de funções de ativação deve ser igual ao número de hidden layers + 1!','ERRO');
         return;
     end
     
     for i = 1: length(activationFcnStrArray)
-        handles.net.layers{i}.transferFcn = activationFcnStrArray(i);
+        try 
+            handles.net.layers{i}.transferFcn = activationFcnStrArray(i);
+        catch
+            errordlg(sprintf('Função de ativação inválida: %s!', activationFcnStrArray(i)),'ERRO');
+            return;
+        end
     end
     
     folderImg = dir(sprintf("%s\\*.jpg", get(handles.EDIT_TRAINFOLDER, 'String')));
@@ -311,10 +334,15 @@ function BTN_NETCREATETRAIN_Callback(hObject, eventdata, handles)
     end
     
     if (get(handles.ordemMenuTrain, 'Value') == 2)
-        flip(letrasTarget, 1);
+        letrasTarget = flip(letrasTarget, 1);
     end
     
-    [handles.net, ~] = train(handles.net, letrasBW, letrasTarget);
+    try
+        [handles.net, ~] = train(handles.net, letrasBW, letrasTarget);
+    catch
+        errordlg('Erro desconhecido ao treinar!','ERRO');
+        return;
+    end
     out = sim(handles.net, letrasBW);
     
     handles.hasNet = 1;
@@ -519,7 +547,7 @@ function BTN_NETSIM_DATASET_Callback(hObject, eventdata, handles)
     end
     
     if (get(handles.ordemMenuSim, 'Value') == 2)
-        flip(letrasTarget, 1);
+        letrasTarget = flip(letrasTarget, 1);
     end
     
     out = sim(handles.net, letrasBW);
@@ -640,8 +668,14 @@ function BTN_NETSIM_FILE_Callback(hObject, eventdata, handles)
     imgFile = get(handles.EDIT_SIMFILE, 'String');
 
     letrasBW = zeros(handles.IMG_RES(1) * handles.IMG_RES(1), 1);
-
-    img = imread(imgFile);
+    
+    try
+        img = imread(imgFile);
+    catch
+        errordlg('O ficheiro específicado não existe!','ERRO');
+        return;
+    end
+    
     imshow(img, 'Parent', handles.imgAxes);
 
     img = imresize(img, [28 28]);
@@ -711,7 +745,6 @@ function drawAxes_ButtonDownFcn(hObject, eventdata, handles)
     % hObject    handle to drawAxes (see GCBO)
     % eventdata  reserved - to be defined in a future version of MATLAB
     % handles    structure with handles and user data (see GUIDATA)
-    disp('bruh');
     
     if (strcmp(get(gcf,'SelectionType'), 'alt'))
         cla(handles.drawAxes);

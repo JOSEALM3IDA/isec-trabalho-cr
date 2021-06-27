@@ -11,7 +11,7 @@ IMG_RES = [28 28];
 folderImg = dir('Pasta3\\letter_bnw_test_*.jpg');
 imgFiles = natsort({folderImg.name});
 
-letrasBW = zeros(IMG_RES(1) * IMG_RES(1), length(imgFiles));
+letrasBW = zeros(IMG_RES(1) * IMG_RES(2), length(imgFiles));
 letrasTarget = [];
 letrasBWCol = 1;
 for i=1:length(imgFiles)/10  
