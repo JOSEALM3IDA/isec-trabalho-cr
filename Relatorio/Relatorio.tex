@@ -7,6 +7,7 @@
 \usepackage{listingsutf8}
 \usepackage{color}
 \usepackage{hyperref}
+\usepackage{float}
 \usepackage[portuguese]{babel}
 
 \graphicspath{{./images/}}
@@ -63,13 +64,18 @@
 	
 	De modo a diminuir os custos de tempo e memória de treino, as imagens, ao serem lidas pelo programa, são redimensionadas para 28x28 (de 3024x3024). De seguida, são colocadas em matrizes binárias e convertidas em uma única coluna, pois, no MATLAB, as redes neuronais recebem os seus \textit{inputs} na forma de colunas de uma matriz.
 	
+	\begin{figure}[H]
+		\includegraphics[width=0.95\textwidth,height=0.88\textheight,keepaspectratio]{matlab-resize}
+		\centering
+		\caption{Redimensionamento das imagens - original vs redimensionada}
+		\label{fig:resize}
+	\end{figure}
+	
 	As imagens, no nosso trabalho, devem ser lidas por ordem alfabética, e em grupos de 10 caracteres diferentes, ou seja, todos os caracteres, para efeitos de treino, devem estar presentes em igual número e ordenados alfabeticamente.
 	
 	Relativamente ao tratamento dos \textit{targets} da rede neuronal, estes são criados usando matrizes de identidade 10 por 10. Cada coluna da matriz de targets terá 10 linhas, ou seja, uma para cada carater, preenchida com um valor que deve ser 0 ou 1: 1 caso a imagem correspondente contenha o carater que a linha representa, ou 0, em caso contrário.
 	
 	Analisando, no momento de produção deste relatório, o tratamento feito às imagens, concluímos que devíamos ter aplicado outras técnicas que teriam um impacto positivo no desempenho da rede, tal como fazer o \textit{trim} das imagens, ou seja, remover os espaços em branco à volta das mesmas, visando uniformizar os tamanhos dos caracteres fornecidos à rede.
-
-	\pagebreak
 	
 	\large
 	\section{Treino e Estudo Estatístico}
@@ -85,8 +91,6 @@
 	Por fim, foram testadas várias configurações possíveis para funções de ativação. A partir destes testes, concluímos que usar a função de ativação \textbf{purelin} na camada de \textit{output} tem melhores resultados.
 	
 	No entanto, os testes efetuados na pasta 1 não são muito significativos, pois até mesmo a configuração base escolhida obtém valores ótimos de desempenho. Isto deve-se ao facto de que as redes, nestes testes, estão a ter acesso e a usar para treino todos os exemplos da pasta. Nesta pasta existe apenas um exemplo por carater grego possível, tornando-se impossível não usar 100\% das imagens para treino.
-	
-	\pagebreak
 	
 	
 	\large
@@ -106,8 +110,7 @@
 	Para finalizar o teste dos diferentes parâmetros da rede, fizemos variar a função de divisão dos conjuntos, onde notamos um melhor desempenho aquando do uso da função \textbf{divideblock}. Pensamos que isso se deva à forma como os nossos \textit{inputs} são lidos e fornecidos à rede, em blocos de 10 caracteres.
 	
 	Por fim, decidimos juntar os melhores parâmetros de cada teste, de modo a analisar se o melhoramento individual dos parâmetros tem um impacto positivo no desempenho da rede. Foi aqui que atingimos os melhores valores de desempenho até então vistos, tendo sidas destacadas 4 redes, com resultados bastante satifatórios em todos os indicadores que considerámos. Todas as 5 redes escolhidas partilham a mesma função de ativação \textbf{purelin} para a camada de \textit{output}, sendo que apenas 1 delas não utiliza a função de divisão \textbf{divideblock}.
-	
-	\pagebreak
+
 	
 	\large
 	\subsection{Pasta 3}
@@ -131,13 +134,37 @@
 	
 	Para completar a avaliação das redes neuronais, foi usada a melhor rede obtida até ao momento na identificação de caracteres desenhados por nós, que estão presentes na pasta 4. A rede conseguiu identificar, com sucesso, 7 dos 20 caracteres fornecidos neste dataset. Concluímos que a rede não teve um melhor desempenho, nestes exemplos, pois parte deles não são similares em tamanho com os caracteres usados para fins de treino. Como já referido, isto poderia ser resolvido fazendo o \textit{trim} prévio das imagens, normalizando-se assim os tamanhos dos caracteres fornecidos à rede, permitindo um foco maior desta na forma de cada caracter e não no seu tamanho.
 	
+	\begin{figure}[H]
+		\includegraphics[width=0.95\textwidth,height=0.88\textheight,keepaspectratio]{matlab-trim}
+		\centering
+		\caption{Exemplo de imagem onde seria benéfico aplicar trim}
+		\label{fig:trim}
+	\end{figure}
+	
+	
 	\large
 	\section{Interface Gráfica}
 	\normalsize
 	
+	\begin{figure}[H]
+		\includegraphics[width=0.95\textwidth,height=0.88\textheight,keepaspectratio]{gui}
+		\centering
+		\caption{Interface Gráfica}
+		\label{fig:gui}
+	\end{figure}
+	
 	Como previamente referido, o trabalho inclui também uma interface gráfica, que permite criar, treinar, carregar e guardar redes neuronais, assim como simular esta com caracteres individuais ou até mesmo conjuntos de caracteres.
 	
-	Não conseguimos, no entanto, permitir o desenho e avaliação de caracteres desenhados diretamente nesta interface, algo que atribuímos a limitações do MATLAB.
+	Esta está preparada para validar todos os dados inseridos de modo a mostrar mensagens de erro ao utilizador e impedir comportamentos inesperados.
+	
+	\begin{figure}[H]
+		\includegraphics[width=0.95\textwidth,height=0.88\textheight,keepaspectratio]{gui-error}
+		\centering
+		\caption{Interface Gráfica - exemplo de uma mensagem de erro}
+		\label{fig:gui-error}
+	\end{figure}
+	
+	Não conseguimos, no entanto, permitir o desenho e avaliação de caracteres desenhados diretamente nesta interface, algo que atribuímos a limitações no nosso conhecimento de MATLAB.
 	
 	\large
 	\section{Conclusão}
@@ -147,6 +174,8 @@
 	
 	Concluímos, então, este trabalho sobre redes neuronais, que consideramos ter sido um sucesso, tanto em termos de aprendizagem e aplicação de conceitos como em termos de desenvolvimento de redes neuronais com desempenhos aceitáveis.
 	
+	
+	\pagebreak
 	
 	\large
 	\section{Anexos}
