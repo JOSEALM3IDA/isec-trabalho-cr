@@ -69,92 +69,56 @@
 	
 	Relativamente ao tratamento dos \textit{targets} da rede neuronal, estes são criados usando matrizes de identidade 10 por 10. Cada coluna da matriz de targets terá 10 linhas, ou seja, uma para cada carater, preenchida com um valor que deve ser 0 ou 1: 1 caso a imagem correspondente contenha o carater que a linha representa, ou 0, em caso contrário.
 	
-	Analisando, no momento de produção deste relatório, o tratamento feito às imagens, concluímos que devíamos ter aplicado outras técnicas que teriam um impacto positivo na performance da rede, tal como fazer o \textit{trim} das imagens, ou seja, remover os espaços em branco à volta das mesmas, visando uniformizar os tamanhos dos caracteres fornecidos à rede.
+	Analisando, no momento de produção deste relatório, o tratamento feito às imagens, concluímos que devíamos ter aplicado outras técnicas que teriam um impacto positivo no desempenho da rede, tal como fazer o \textit{trim} das imagens, ou seja, remover os espaços em branco à volta das mesmas, visando uniformizar os tamanhos dos caracteres fornecidos à rede.
 
 	\pagebreak
 	
 	\large
-	\section{Padrões de Programação}
-	\subsection{Máquina de Estados}
+	\section{Pastas Individuais}
+	\subsection{Pasta 1}
 	\normalsize
 	
-	 Em termos de implementação, a interação UI - Jogo é feita através do design pattern Máquina de Estados. Este permite aceder a informação essencial à IU e mudar o estado do programa, sem quebrar princípios da programação orientada a objetos, como o encapsulamento.
-	 
-	 Abaixo encontra-se o diagrama de estados que serve de base à implementação. Os estados incluídos foram definidos por se tratarem de momentos em que o input do utilizador é obrigatório para a continuação do funcionamento, ou apenas por uma questão de compreensão de acontecimentos por parte do utilizador (como, por exemplo, no caso do assisteJogada, onde espera que o utilizador vá passando jogada a jogada, para ir mostrando o tabuleiro de forma coerente e não tudo de uma vez). O esquema fala por si quanto à maior parte da informação. No entanto, as condições de passagem de estado para estado não estão representadas nele. São as seguintes:
-	 
-	 \begin{itemize}
-	 	\item A transição \textbf{adicionarJogador} verifica se ainda há espaço para jogadores. Se sim, fica no mesmo estado, se não, passa para o estado \textbf{pedeDecisaoJogada};
-	 	\item A transição \textbf{jogarFicha} verifica se o jogo terminou. Se sim, passa ao estado \textbf{fimJogo}. Se não, fica no mesmo estado.
-	 	\item A transição \textbf{enviarRespostaMinijogo} verifica se o minijogo já terminou. Se sim, volta ao estado \textbf{pedeDecisaoJogada}. Se não, fica no mesmo estado.
-	 	\item A transição \textbf{avancar}, no estado \textbf{assisteJogada}, verifica se há mais jogadas a apresentar. Se sim, fica no mesmo estado. Se não, volta ao estado \textbf{pedeDecisaoInicio}.
-	 \end{itemize}
+	Iniciando-se então o processo de desenvolvimento e estudo da rede neuronal, foram testadas várias topologias, funções de ativação e de treino. Todos os valores obtidos foram colocados no excel em anexo.
+	
+	Comparado com a configuração base de uma camada escondida com 10 neurónios, notamos um impacto positivo, em geral, quando é aumentado o número de camadas escondidas, assim como o número de neurónios por camada, tendo este último um impacto mais significativo no desempenho da rede.
+	
+	Relativamente ao impacto da função de treino no desempenho da rede, observamos que, pelo menos nos nossos testes, nenhuma das outras funções de treino, neste caso, alcançaram melhores valores do que a configuração base. No entanto, grande parte das mesmas reduz muito a complexidade temporal necessária ao treino.
+	
+	Por fim, foram testadas várias configurações possíveis para funções de ativação. A partir destes testes, concluímos que usar a função de ativação \textbf{purelin} na camada de output tem melhores resultados.
+	
+	No entanto, os testes efetuados na pasta 1 não são muito significativos, pois até mesmo a configuração base escolhida obtém valores ótimos de desempenho. Isto deve-se ao facto de que as redes, nestes testes, estão a ter acesso e a usar para treino todos os exemplos da pasta. Nesta pasta existe apenas um exemplo por carater gregp possível, tornando-se impossível não usar 100\% das imagens para treino.
+	
+	\pagebreak
+	
+	
+	\large
+	\subsection{Pasta 2}
+	\normalsize
+	
+	Nesta pasta, a matriz de targets deve ser invertida, pois as imagens encontram-se pela ordem inversa à alfabética, e poderia causar incompatibilidades com as outras pastas caso a mesma não fosse invertida.
+	
+	Testando, de forma semelhante à pasta 1, o impacto do número e dimensão das camadas escondidas, chegamos aos mesmos resultados: mais camadas e neurónios são benéficos para a rede, pelo menos até certo ponto. No entanto, o aumento do número de camadas e neurónios tem um elevado custo temporal e de memória associado, facto que foi tido em conta ao longo de todo o estudo estatístico.
+	
+	O mesmo aconteceu quanto ao estudo sobre o desempenho das várias funções de treino: nenhuma delas superou a \textbf{trainlm}, presente na configuração base.
+	
+	Foi testado, de igual forma, o impacto das funções de ativação no desempenho da rede. Obtivemos aqui uma das melhores redes, que reportou um desempenho de \textbf{1.8139E-29} (neste caso, quanto mais baixo melhor). No entanto, esta rede, cujas funções de ativação foram ambas configuradas com \textbf{purelin}, não obteve os melhores resultados em termos de desempenho de validação e de teste. Mesmo assim, decidimos guardá-la e testá-la um pouco mais, posteriormente.
+	
+	Devido ao maior tamanho do dataset disponível na pasta 2, já é possível, aqui, dividir os exemplos pelos três conjuntos (de treino, de validação e de teste). De um modo geral, quanto maior for o número de exemplos para treino disponível à rede, melhor o seu desempenho. No entanto, devem existir pelo menos alguns exemplos para validação e teste, pois estes permitem um melhor estudo estatístico das redes: tornam possível a avaliação da rede face a exemplos que não usou durante o treino. A existência de elementos nestes conjuntos permitem à rede autoavaliar-se e, se achar conveniente, terminar mais cedo o treino, o que faz com que a complexidade temporal de treino das redes seja mais reduzido, embora com alguns impactos no desempenho da mesma.
+	
+	Para finalizar o teste dos diferentes parâmetros da rede, fizemos variar a função de divisão dos conjuntos, onde notamos um melhor desempenho aquando do uso da função \textbf{divideblock}. Pensamos que isso se deva à forma como os nossos \textit{inputs} são lidos e fornecidos à rede, em blocos de 10 caracteres.
+	
+	Por fim, decidimos juntar os melhores parâmetros de cada teste, de modo a analisar se o melhoramento individual dos parâmetros tem um impacto positivo no desempenho da rede. Foi aqui que atingimos os melhores valores de desempenho até então vistos, tendo sidas destacadas 4 redes, com resultados bastante satifatórios em todos os indicadores que considerámos. Todas as 5 redes escolhidas partilham a mesma função de ativação \textbf{purelin} para a camada de output, sendo que apenas 1 delas não utiliza a função de divisão \textbf{divideblock}.
 	
 	\pagebreak
 	
 	\large
-	\subsection{Command}
+	\subsection{Pasta 3}
 	\normalsize
 	
-	Com o objetivo de implementar a funcionalidade de undo e replay, foi usado o padrão Command, embora um pouco alterado, comparativamente ao leccionado nas aulas. Neste caso, o undo é entendido como um elemento do jogo, logo é implementado também como um Command, que se limita a chamar o método undo dos comandos anteriores. A escolha de ser usado o Command e não o Memento (ou qualquer outro padrão) baseou-se no facto de que o Command permite uma maior perceção das mudanças ao jogo e uma redução do custo de memória. Neste caso, não foram encontradas desvantagens ao uso do Command.
-	
-	O Command, nesta implementação, tem a dupla funcionalidade de suportar o undo de jogadas e o replay de jogos. No caso de se querer fazer undo a jogadas, é chamado o comando DesfazerJogadas, que desfaz um certo número dado de jogadas feitas.
-	
-	Associado ao CommandManager, há um histórico completo de comandos executados - que inclui comandos de undo e derrotas/vitórias de minijogos. Quando se chega ao fim de um jogo, é guardado este CommandManager num ficheiro (cujo nome depende da data e hora do sistema). Para visualizar um replay, basta carregar este CommandManager e ir executando, um a um, num tabuleiro vazio, os comandos do histórico completo. Simples e intuitivo, certo?
-	
-	Para além da informação específica a cada comando, todos eles incluem um toString com informação associada ao acontecimento em questão. Isto faz com que seja possível descrever ao utilizador, por texto, durante o replay, o que aconteceu no jogo, em vez de só mostrar visualmente.
 	
 	\large
-	\subsection{Factory}
+	\section{Testes Gerais}
 	\normalsize
-	
-	Foi também usado o padrão Factory. Este padrão abstrai a criação de certos objetos, simplificando o código onde for usado. Neste caso, foi utilizado em duas situações distintas: a criação de jogadores e a escolha dos minijogos. A sua implementação verifica-se na classe \textbf{JogadorFactory}, onde devolve o jogador criado mediante o valor da enum \textbf{TipoJogador} dado, assim como classe \textbf{MinijogoFactory}, que trata de devolver, alternadamente, o minijogo a ser jogado.
-	
-	\pagebreak
-	
-	\large
-	\section{Classes}
-	\normalsize
-	
-	Ao todo, foram usadas 33 classes, de entre as quais 3 são abstratas, 4 interfaces e 3 enums. Dessas, as mais relevantes são as seguintes: 
-	
-	\begin{itemize}
-		\item Interface \textbf{Estado} - Representa, de forma abstrata, os estados possíveis da máquina de estados. É implementada pela classe \textbf{EstadoAdapter}, que por sua vez é extendida pelas classes \textbf{AssisteJogada}, \textbf{FimJogo}, \textbf{JogaMinijogo}, \textbf{PedeConfiguracao}, \textbf{PedeDecisaoInicio}, \textbf{PedeDecisaoJogada}. Cada estado está também definido na enum \textbf{Situacao};
-		\item Interface \textbf{Minijogo} - Representa, de forma abstrata, os minijogos possíveis. É implementada pela classe MinijogoAdapter, que por sua vez é extendida pelas classes \textbf{Calculos} (jogo dos cálculos referido no enunciado) e \textbf{Palavras} (jogo das palavras);
-		\item Interface \textbf{Jogador} - Representa, de forma abstrata, um jogador. É implementada pela classe \textbf{JogadorAdapter}, que é posteriormente extendida pela classe \textbf{Humano} (jogador humano) e \textbf{Computador} (jogador que joga de forma autónoma). Cada tipo de jogador está definido na enum \textbf{TipoJogador};
-		\item Interface \textbf{Command} - Representa, de forma abstrata, um comando a executar, disponibilizando, também, caso seja necessário, o seu undo. É implementada pela classe \textbf{CommandAdapter}, que é extendida pelas classes \textbf{AdicionaFichaEspecial} (receber uma ficha especial devido a ter ganho um minijogo), \textbf{DesfazerJogadasCommand} (executa o undo de outros comandos), \textbf{DesistirCommand} (desistir do jogo), \textbf{JogarFichaCommand} (adicionar uma ficha numa coluna do tabuleiro), \textbf{JogarFichaEspecialCommand} e \textbf{PerderMinijogoCommand} (informação relativa à derrota num minijogo). Certas classes não têm undo possível, pois servem apenas para adicionar ao histórico completo de modo a possibilitar o replay;
-		\item Classe \textbf{QuatroEmLinha} - Representa o jogo em si. Tem todos os métodos associados ao mesmo, como métodos para jogar uma ficha numa determinada coluna, ou adicionar um jogador. É constituída por dois objetos também essenciais à aplicação: um objeto da classe \textbf{Tabuleiro}, que trata de tudo o que tem a ver com a gestão do tabuleiro de jogo, e a classe \textbf{ListaJogador}, que gere a lista de jogadores a participar no jogo;
-		\item Classe \textbf{CommandManager} - Recebe, executa e reverte comandos que lhe são enviados. Mantém um histórico destes comandos, servindo de base à implementação das funcionalidades de undo e replay;
-		\item Classe \textbf{QuatroEmLinhaGestor} - Abstrai a interação com as classes \textbf{QuatroEmLinha} e \textbf{CommandManager}, controlando o que é executado diretamente e o que é executado através do Command;
-		\item Classe \textbf{QuatroEmLinhaMaquinaEstados} - Serve de camada de interação entre as classes de IU e a classe \textbf{QuatroEmLinhaGestor}. É composta por um objeto do tipo \textbf{Estado}, e controla a interação com ele;
-		\item Classe \textbf{QuatroEmLinhaMaquinaUITexto} - Classe que trata de toda a interação com o utilizador.
-	\end{itemize}
-	
-	Embora já descrita acima, a relação entre as classes existentes é mais facilmente explicada pelo esquema presente na próxima página.
-	
-	\pagebreak
-	
-	Nota: As classes utilitárias e as enums não se encontram no esquema, devido a serem públicas e acessíveis em todo o programa.
-	
-	\vspace{0.5cm}
-
-	\pagebreak
-	
-	\large
-	\section{Funcionalidades Implementadas}
-	\normalsize
-	\begin{center}
-		\begin{tabular}{ |c|c|c|c| } 
-			\hline
-			\textbf{Componente do Trabalho} & \textbf{Realizado} & \textbf{Realizado parcialmente} & \textbf{Não realizado} \\ \hline
-			Organização ficheiros / classes & \checkmark & & \\ \hline
-			Nome e Tipo dos Jogadores & \checkmark & & \\ \hline
-			Quatro em Linha Tradicional & \checkmark & & \\ \hline
-			Minijogos e Peça Especial & \checkmark & & \\ \hline
-			Replay dos 5 Últimos jogos & \checkmark & & \\ \hline
-			Save e Load de Jogos a Decorrer & \checkmark & & \\ \hline
-			Undos e Sistema de Créditos & \checkmark & & \\ \hline
-		\end{tabular}
-	\end{center}
 
 	\large
 	\section{Anexos}
