@@ -72,7 +72,7 @@
 	\pagebreak
 	
 	\large
-	\section{Pastas Individuais}
+	\section{Treino e Estudo Estatístico}
 	\subsection{Pasta 1}
 	\normalsize
 	
@@ -82,7 +82,7 @@
 	
 	Relativamente ao impacto da função de treino no desempenho da rede, observamos que, pelo menos nos nossos testes, nenhuma das outras funções de treino, neste caso, alcançaram melhores valores do que a configuração base. No entanto, grande parte das mesmas reduz muito a complexidade temporal necessária ao treino.
 	
-	Por fim, foram testadas várias configurações possíveis para funções de ativação. A partir destes testes, concluímos que usar a função de ativação \textbf{purelin} na camada de output tem melhores resultados.
+	Por fim, foram testadas várias configurações possíveis para funções de ativação. A partir destes testes, concluímos que usar a função de ativação \textbf{purelin} na camada de \textit{output} tem melhores resultados.
 	
 	No entanto, os testes efetuados na pasta 1 não são muito significativos, pois até mesmo a configuração base escolhida obtém valores ótimos de desempenho. Isto deve-se ao facto de que as redes, nestes testes, estão a ter acesso e a usar para treino todos os exemplos da pasta. Nesta pasta existe apenas um exemplo por carater grego possível, tornando-se impossível não usar 100\% das imagens para treino.
 	
@@ -105,7 +105,7 @@
 	
 	Para finalizar o teste dos diferentes parâmetros da rede, fizemos variar a função de divisão dos conjuntos, onde notamos um melhor desempenho aquando do uso da função \textbf{divideblock}. Pensamos que isso se deva à forma como os nossos \textit{inputs} são lidos e fornecidos à rede, em blocos de 10 caracteres.
 	
-	Por fim, decidimos juntar os melhores parâmetros de cada teste, de modo a analisar se o melhoramento individual dos parâmetros tem um impacto positivo no desempenho da rede. Foi aqui que atingimos os melhores valores de desempenho até então vistos, tendo sidas destacadas 4 redes, com resultados bastante satifatórios em todos os indicadores que considerámos. Todas as 5 redes escolhidas partilham a mesma função de ativação \textbf{purelin} para a camada de output, sendo que apenas 1 delas não utiliza a função de divisão \textbf{divideblock}.
+	Por fim, decidimos juntar os melhores parâmetros de cada teste, de modo a analisar se o melhoramento individual dos parâmetros tem um impacto positivo no desempenho da rede. Foi aqui que atingimos os melhores valores de desempenho até então vistos, tendo sidas destacadas 4 redes, com resultados bastante satifatórios em todos os indicadores que considerámos. Todas as 5 redes escolhidas partilham a mesma função de ativação \textbf{purelin} para a camada de \textit{output}, sendo que apenas 1 delas não utiliza a função de divisão \textbf{divideblock}.
 	
 	\pagebreak
 	
@@ -113,11 +113,41 @@
 	\subsection{Pasta 3}
 	\normalsize
 	
+	Este dataset foi usado para testar as melhores redes obtidas até ao momento. Notamos que todas elas acertaram em, pelo menos, 70\% das imagens que compõem a pasta 3, tendo a rede 51 acertado quase na totalidade dos exemplos (95\%). Esta rede destaca-se também por ter conseguido avaliar corretamente todos os exemplos da pasta 2.
+	
+	De seguida, as respetivas parametrizações de cada rede foram usadas para criar novas redes treinadas apenas com o dataset da pasta 3. As redes foram avaliadas posteriormente com base no seu desempenho na avaliação das imagens das pastas 1, 2 e 3. Algumas destas redes não tiveram um bom desempenho, tendo uma das melhores redes até ao momento, a rede 29, resultados na fronteira do aleatório. No entanto, a superioridade da rede 51 manteve-se, nesta avaliação. Também a rede 47 teve bons resultados, igualando ou chegando perto dos resultados da rede 51.
 	
 	\large
-	\section{Testes Gerais}
+	\subsection{Treino Geral}
 	\normalsize
-
+	
+	As 5 melhores redes até ao momento - 29, 47, 48, 51 e 52 - foram treinadas do zero usando os exemplos das pastas 1, 2 e 3. Aqui, a rede 51 perde, por pouco, a sua superioridade, tendo a rede 52 conseguido resultados ligeiramente melhores na avaliação da pasta 3. Mesmo não tendo sido a melhor neste teste em específico, a rede 51 mostrou uma adaptação melhor a novas imagens (que não tinha usado durante o teste) e, portanto, consideramos que esta é a melhor rede obtida durante o estudo estatístico e desenvolvimento das redes neuronais feito. 
+	
+	Esta rede inclui apenas uma \textit{hidden layer} de 10 neurónios, tendo essa camada, assim como a camada de \textit{output}, sido configuradas com a função de ativação \textbf{purelin}, mostrando a superioridade da mesma, pelo menos neste caso.
+	
+	\large
+	\section{Casos Extra - Pasta 4}
+	\normalsize
+	
+	Para completar a avaliação das redes neuronais, foi usada a melhor rede obtida até ao momento na identificação de caracteres desenhados por nós, que estão presentes na pasta 4. A rede conseguiu identificar, com sucesso, 7 dos 20 caracteres fornecidos neste dataset. Concluímos que a rede não teve um melhor desempenho, nestes exemplos, pois parte deles não são similares em tamanho com os caracteres usados para fins de treino. Como já referido, isto poderia ser resolvido fazendo o \textit{trim} prévio das imagens, normalizando-se assim os tamanhos dos caracteres fornecidos à rede, permitindo um foco maior desta na forma de cada caracter e não no seu tamanho.
+	
+	\large
+	\section{Interface Gráfica}
+	\normalsize
+	
+	Como previamente referido, o trabalho inclui também uma interface gráfica, que permite criar, treinar, carregar e guardar redes neuronais, assim como simular esta com caracteres individuais ou até mesmo conjuntos de caracteres.
+	
+	Não conseguimos, no entanto, permitir o desenho e avaliação de caracteres desenhados diretamente nesta interface, algo que atribuímos a limitações do MATLAB.
+	
+	\large
+	\section{Conclusão}
+	\normalsize
+	
+	Observámos que a parametrização das redes é crucial no seu desempenho, sendo esta parametrização dependente do problema em questão. De alta importância é também o tratamento prévio das imagens, que permite à rede focar-se nas características que são mais relevantes ao problema - como, neste caso, a forma dos caracteres.
+	
+	Concluímos, então, este trabalho sobre redes neuronais, que consideramos ter sido um sucesso, tanto em termos de aprendizagem e aplicação de conceitos como em termos de desenvolvimento de redes neuronais com desempenhos aceitáveis.
+	
+	
 	\large
 	\section{Anexos}
 
